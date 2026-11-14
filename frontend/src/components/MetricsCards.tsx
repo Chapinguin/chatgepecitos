@@ -1,6 +1,6 @@
 import React from 'react';
 import type { VariableResult } from '../types';
-import { ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, Sparkles, Clock } from 'lucide-react';
 
 interface MetricsCardsProps {
   variables: VariableResult[];
@@ -27,6 +27,12 @@ export const MetricsCards: React.FC<MetricsCardsProps> = ({ variables }) => {
         return (
           <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-950/70 border border-amber-800/50 px-2 py-0.5 rounded font-mono font-medium">
             <AlertCircle className="w-3 h-3" /> Partial Match
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-700/50 px-2 py-0.5 rounded font-mono font-medium animate-pulse">
+            <Clock className="w-3 h-3" /> Awaiting Pipeline
           </span>
         );
       default:

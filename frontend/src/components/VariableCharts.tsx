@@ -12,7 +12,7 @@ import {
   Legend,
 } from 'recharts';
 import type { LayerMetric, HistogramBin, TargetBody } from '../types';
-import { Activity, BarChart2 } from 'lucide-react';
+import { Activity, BarChart2, Clock } from 'lucide-react';
 
 interface VariableChartsProps {
   layerMetrics: LayerMetric[];
@@ -29,10 +29,13 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
   const primaryColor = isMars ? '#f97316' : '#06b6d4';
   const secondaryColor = isMars ? '#ef4444' : '#6366f1';
 
+  const isBandsPending = layerMetrics.length === 0 || layerMetrics.every((l) => l.matchScore === 0);
+  const isHistogramPending = histogram.length === 0 || histogram.every((h) => h.count === 0);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* Chart 1: Spectral & Geological Match by Band */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-md">
+      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-md relative overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-cyan-400" />
@@ -41,11 +44,25 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
             </h3>
           </div>
           <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-            {layerMetrics.length} Bands Analyzed
+            {isBandsPending ? 'Pending Pipeline' : `${layerMetrics.length} Bands Analyzed`}
           </span>
         </div>
 
-        <div className="h-64 w-full">
+        <div className="h-64 w-full relative">
+          {isBandsPending && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-950/70 backdrop-blur-xs rounded-xl border border-slate-800/80 p-4 text-center">
+              <div className="w-9 h-9 rounded-full bg-amber-950/80 border border-amber-600/50 flex items-center justify-center mb-2 animate-pulse">
+                <Clock className="w-4 h-4 text-amber-400" />
+              </div>
+              <h4 className="text-xs font-bold text-white mb-1">
+                Awaiting Multispectral Computation
+              </h4>
+              <p className="text-[11px] text-slate-400 max-w-xs">
+                Reflectance and mineral fidelity curves will plot automatically once the Python backend processes the GeoTIFF bands.
+              </p>
+            </div>
+          )}
+
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={layerMetrics} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
@@ -60,7 +77,7 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="layer" stroke="#64748b" tick={{ fontSize: 10 }} />
-              <YAxis stroke="#64748b" tick={{ fontSize: 11 }} domain={[60, 100]} />
+              <YAxis stroke="#64748b" tick={{ fontSize: 11 }} domain={[0, 100]} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#0f172a',
@@ -98,7 +115,7 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
       </div>
 
       {/* Chart 2: Analog Score Distribution Histogram */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-md">
+      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-md relative overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <BarChart2 className="w-4 h-4 text-purple-400" />
@@ -107,11 +124,25 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
             </h3>
           </div>
           <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-            N = 20,400 Pixels
+            {isHistogramPending ? 'Pending Pipeline' : 'Pixel Bins'}
           </span>
         </div>
 
-        <div className="h-64 w-full">
+        <div className="h-64 w-full relative">
+          {isHistogramPending && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-950/70 backdrop-blur-xs rounded-xl border border-slate-800/80 p-4 text-center">
+              <div className="w-9 h-9 rounded-full bg-amber-950/80 border border-amber-600/50 flex items-center justify-center mb-2 animate-pulse">
+                <Clock className="w-4 h-4 text-amber-400" />
+              </div>
+              <h4 className="text-xs font-bold text-white mb-1">
+                Awaiting Pixel Distribution
+              </h4>
+              <p className="text-[11px] text-slate-400 max-w-xs">
+                Spatial pixel frequency histogram is queued for backend execution.
+              </p>
+            </div>
+          )}
+
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={histogram} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
