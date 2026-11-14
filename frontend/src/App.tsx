@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { PlanetarySwitch } from './components/PlanetarySwitch';
-import { ControlPanel } from './components/ControlPanel';
 import { MetricsCards } from './components/MetricsCards';
 import { VariableCharts } from './components/VariableCharts';
 import { VariablesTable } from './components/VariablesTable';
-import { PipelineLogs } from './components/PipelineLogs';
-import { ChatAssistant } from './components/ChatAssistant';
 import type { AnalysisResult, TargetBody } from './types';
-import { loadPlanetaryResults, parsePlanetaryData } from './services/csvLoader';
+import { loadPlanetaryResults } from './services/csvLoader';
 import { getInitialMockResult } from './data/mockData';
 import { Target, Sparkles, Compass } from 'lucide-react';
 
@@ -36,7 +33,6 @@ export function App() {
     }
   }, []);
 
-  // Fetch when target body changes (Earth with Mars <-> Earth with Moon)
   useEffect(() => {
     fetchPlanetaryData(targetBody);
   }, [targetBody, fetchPlanetaryData]);
@@ -44,16 +40,6 @@ export function App() {
   const handleTargetChange = (newBody: TargetBody) => {
     if (newBody !== targetBody) {
       setTargetBody(newBody);
-    }
-  };
-
-  const handleCustomCSVUpload = (content: string, filename: string) => {
-    try {
-      const parsed = parsePlanetaryData(content, undefined, undefined, targetBody, filename);
-      setResult(parsed);
-      setLastUpdated(`Uploaded: ${filename}`);
-    } catch (err) {
-      console.error('Failed to parse custom CSV:', err);
     }
   };
 
@@ -134,31 +120,6 @@ export function App() {
           targetBody={targetBody}
           filename={result.filename}
         />
-
-        {/* 4. Controls, Logs & Chat Copilot */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 space-y-6">
-            <ControlPanel
-              onCustomCSVUpload={handleCustomCSVUpload}
-              isLoading={isLoading}
-              totalVariables={result.variables.length}
-              targetBody={targetBody}
-            />
-            <PipelineLogs
-              logs={result.pipelineLogs}
-              duration={result.durationSeconds}
-              filename={result.filename}
-            />
-          </div>
-
-          <div className="lg:col-span-7">
-            <ChatAssistant
-              variables={result.variables}
-              analogSites={result.analogSites}
-              targetBody={targetBody}
-            />
-          </div>
-        </div>
       </main>
 
       {/* Footer */}
