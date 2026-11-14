@@ -33,7 +33,7 @@ export const PlanetarySwitch: React.FC<PlanetarySwitchProps> = ({
             Planetary Comparison Mode
           </h2>
           <p className="text-xs text-slate-400 max-w-xl">
-            Switch between target celestial bodies. All analog matching scores, spectral graphs, terrestrial candidate sites, and AI insights dynamically re-calibrate.
+            Switch between target celestial bodies. All analog matching different characteristics between the locations.
           </p>
         </div>
 
