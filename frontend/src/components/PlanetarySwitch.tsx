@@ -14,7 +14,7 @@ export const PlanetarySwitch: React.FC<PlanetarySwitchProps> = ({
   isLoading,
 }) => {
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
       {/* Background ambient lighting */}
       <div
         className={`absolute top-0 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-700 ${
