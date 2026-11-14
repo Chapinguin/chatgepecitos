@@ -1,36 +1,33 @@
-# Guía para el equipo de Python y Jupyter (.ipynb)
+# Guide for Python & Jupyter Notebook Team (.ipynb)
 
-Para que sus experimentos en Jupyter Notebooks se sincronicen directamente con la app de React sin tener que reescribir código en el hackathon:
+To ensure your Jupyter Notebook experiments automatically synchronize with the React frontend without rewriting code during the hackathon:
 
-### 1. Importar el pipeline directamente en el Notebook:
+### 1. Import and run the pipeline module directly in your Notebook:
 ```python
 import sys
 sys.path.append("..")
 from pipeline import extract_variables_from_tiff
 
-# Probar con su archivo TIFF
-resultado = extract_variables_from_tiff(
-    filepath="ruta/a/su_archivo.tiff",
-    algorithm="GLCM + Segmentación Adaptativa",
+# Test with your local TIFF file
+result = extract_variables_from_tiff(
+    filepath="path/to/specimen.tiff",
+    target_body="Mars", # or "Moon"
     threshold=2.5
 )
 
-# Visualizar el diccionario de variables
-print("Variables extraídas:", resultado["variables"])
+# Inspect extracted variables dictionary
+print("Variables extracted:", result["variables"])
 ```
 
-### 2. ¿Cómo agregar nuevas variables al frontend?
-Simplemente editen la lista `variables` en `backend/pipeline.py` agregando su nueva métrica:
+### 2. Exporting results directly to the React Dashboard:
+Append this cell at the end of your `.ipynb` notebook:
 ```python
-{
-    "name": "Mi Nueva Métrica",
-    "key": "mi_metrica_key",
-    "value": 42.0,
-    "unit": "mg/L",
-    "status": "normal",  # 'normal' | 'warning' | 'critical' | 'info'
-    "category": "Análisis Químico",
-    "description": "Explicación breve de la variable calculada."
-}
-```
-¡El frontend de React la detectará y mostrará automáticamente en la tabla, tarjetas y en el asistente de chat!
+import pandas as pd
 
+# Export your calculated analog match DataFrame:
+target_body = "mars"  # or "moon"
+df_results.to_csv(f"outputs/earth_with_{target_body}_variables.csv", index=False)
+print("✅ CSV updated for Chatgepecitos Frontend")
+```
+
+The React dashboard will automatically detect and render the updated metrics, charts, and Copilot reasoning!

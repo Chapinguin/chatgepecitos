@@ -1,64 +1,86 @@
-# 🔬 Chatgepecitos — TIFF Analytics Engine
+# 🪐 Planetary Analog Explorer
 
-Plataforma rápida para el análisis, extracción y visualización interactiva de variables a partir de archivos TIFF pesados y de alta dimensionalidad (multicanal, hiperespectrales y Z-stacks).
+> **Challenge:** *"Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars"*  
+> **Team:** **chatgepecitos** 🚀  
+> **NASA Space Apps Challenge / Hackathon 36h Edition**
 
-> **Hackathon 36h Edition** 🚀 — Diseñado con desacoplamiento total: la interfaz React no descarga ni renderiza los archivos TIFF de gigabytes en el navegador; únicamente recibe y visualiza las variables numéricas, estadísticas y morfológicas calculadas por el pipeline de Python.
+An interactive geospatial and multispectral intelligence platform designed to identify, cross-match, and visualize terrestrial analog field locations on Earth that mirror environmental, mineralogical, and geomechanical conditions of **Permanent Lunar Base locations** (e.g., Shackleton Crater, Marius Hills lava tubes) and **Martian exploration sites** (e.g., Jezero and Gale Craters).
 
 ---
 
-## 📁 Estructura del Repositorio
+## ⚡ Key Architecture & Features
+
+- **Decoupled Heavy Image Processing:** Heavy multispectral TIFF files (>1 GB) are processed in Python/Jupyter notebooks without saturating browser memory. Only calculated indices, spectral matches, and variables are synchronized into the React frontend.
+- **Planetary Analog Switch (`Earth with Mars` vs `Earth with Moon`):** A high-impact toggle that re-calibrates all metrics, multispectral radar curves, candidate sites, and AI insights between Moon and Mars conditions.
+- **Terrestrial Analog Sites Database:** Verified scientific locations (Atacama Desert, Rio Tinto Basin, Devon Island, Haleakala Volcanic Complex, Cinder Lake, Lanzarote lava tubes) mapped with overall match scores, mineralogy fidelity, and terrain roughness.
+- **Chatgepecitos AI Copilot:** Interactive reasoning assistant capable of answering contextual questions about analog matches, regolith proxies, and permanent habitat feasibility.
+- **Direct Repo CSV Synchronization:** The frontend dynamically reads `outputs/earth_with_mars_variables.csv` and `outputs/earth_with_moon_variables.csv`, allowing the data science team to update the live dashboard with a single `df.to_csv()` call from their notebooks.
+
+---
+
+## 📁 Repository Structure
 
 ```
 chatgepecitos/
-├── frontend/               # Aplicación React + Vite + TypeScript + Tailwind CSS
+├── frontend/                   # React + Vite + TypeScript + Tailwind CSS
+│   ├── public/data/            # Planetary analog CSV datasets
+│   │   ├── earth_with_mars_variables.csv
+│   │   ├── earth_with_moon_variables.csv
+│   │   ├── earth_with_mars_layers.csv
+│   │   ├── earth_with_moon_layers.csv
+│   │   └── planetary_analog_sites.csv
 │   ├── src/
-│   │   ├── components/     # Cards de métricas, gráficos Recharts, tablas y Chat Copilot
-│   │   ├── services/       # Cliente API con Fallback / Modo Simulación integrado
-│   │   ├── data/           # Datasets de prueba para demo en vivo
-│   │   └── types/          # Tipado estricto de variables y resultados
+│   │   ├── components/         # PlanetarySwitch, MetricsCards, Charts, Tables, Copilot
+│   │   ├── services/           # CSV Loader (PapaParse) & API client
+│   │   └── types/              # TypeScript schemas for planetary analog matching
 │   └── package.json
 │
-├── backend/                # Servidor FastAPI + Pipeline de extracción matemática
-│   ├── pipeline.py         # Módulo central de procesamiento (reutilizable en notebooks)
-│   ├── main.py             # Endpoints /api/health y /api/process
-│   ├── notebooks/          # Espacio para los Jupyter Notebooks (.ipynb) del equipo
-│   └── requirements.txt    # Dependencias de Python
+├── backend/                    # Python API & Multispectral Pipeline
+│   ├── pipeline.py             # Reusable TIFF & proxy extraction logic
+│   ├── main.py                 # FastAPI service (/api/health, /api/process)
+│   ├── notebooks/              # Jupyter Notebooks (.ipynb) workspace
+│   └── requirements.txt
 │
-├── .gitignore              # Configurado para ignorar TIFFs gigantes y checkpoints
+├── outputs/                    # Export directory for notebook CSV results
+├── .gitignore                  # Prevents accidental commit of heavy TIFFs & checkpoints
 └── README.md
 ```
 
 ---
 
-## ⚡ Inicio Rápido (En menos de 2 minutos)
+## 🚀 Quick Start
 
-### 1. Levantar el Frontend (React)
+### 1. Run the Frontend (React Dashboard)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-La aplicación abrirá en `http://localhost:3000`.
+Open **[http://localhost:3000](http://localhost:3000)** (or `http://localhost:3001`) in your browser.
 
-*Nota:* Si el backend no está activo aún, la app funciona al 100% en **Modo Simulación (Demo)** para que puedan ensayar la presentación y el pitch sin depender de que los modelos terminen de compilar.
-
-### 2. Levantar el Backend (FastAPI - Opcional para demo en vivo)
+### 2. Run the Backend API (FastAPI - Optional)
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate   # En Windows: .venv\Scripts\activate
+source .venv/bin/activate       # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 ```
-El servidor API estará disponible en `http://localhost:8000` con documentación Swagger en `/docs`.
+The API server runs on `http://localhost:8000` with interactive Swagger docs at `/docs`.
 
 ---
 
-## 🧠 Características Principales
+## 🔬 How the Backend Team Exports Data from Notebooks
 
-1. **Dashboard de Variables en Tiempo Real:** Visualización de métricas clave (densidad, intensidad espectral, varianza GLCM, entropía espacial, SNR).
-2. **Gráficos Interactivos de Capas e Histograma:** Perfiles por canal/Z-stack y distribución de bines dinámicos con `recharts`.
-3. **Tabla Completa y Exportador CSV:** Filtros por categoría y descarga en 1 clic de todas las variables analizadas.
-4. **Chatgepecitos AI Copilot:** Asistente contextual capaz de responder preguntas y razonar sobre las anomalías de las variables extraídas.
-5. **Modo Seguro contra Caídas de Red:** Toggle de Simulación / API Real para garantizar que la presentación del hackathon sea a prueba de fallos.
+In your Jupyter Notebook (`.ipynb`), append this cell at the end of your analysis:
 
+```python
+import pandas as pd
+
+# Export your calculated analog match DataFrame:
+target_body = "mars"  # or "moon"
+df_analogs.to_csv(f"outputs/earth_with_{target_body}_variables.csv", index=False)
+print("✅ CSV updated for Chatgepecitos Frontend")
+```
+
+Click **"Sync CSV"** in the frontend header to immediately render the updated variables across the entire dashboard!

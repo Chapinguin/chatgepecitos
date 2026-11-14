@@ -1,0 +1,12 @@
+id,earthLocation,earthCountry,targetLocation,targetBody,overallMatchScore,mineralMatch,terrainMatch,climateProxyMatch,keyAnalogFactor,status
+M-01,Atacama Desert (Yungay),Chile,Jezero Crater,Mars,94.2,96.5,92.0,94.1,Hyper-aridity & perchlorate salt deposits,High Match
+M-02,Rio Tinto Basin,Spain,Meridiani Planum,Mars,91.8,95.2,88.4,91.8,Acidic ferric sulfate & jarosite mineralization,High Match
+M-03,Devon Island (Haughton Crater),Canada,Gale Crater,Mars,89.5,86.2,93.4,88.9,Impact cratering in polar desert permafrost,High Match
+M-04,McMurdo Dry Valleys,Antarctica,Valles Marineris Slopes,Mars,88.4,84.1,91.2,89.9,Cold-dry boundary & endolithic microorganism niches,High Match
+M-05,Mojave Desert (Amboy Crater),USA,Elysium Planitia,Mars,82.3,81.0,85.6,80.3,Basaltic lava flows & aeolian dune migration,Moderate Match
+L-01,Haleakala Volcanic Complex,Hawaii (USA),Shackleton Crater Base,Moon,95.8,97.2,94.8,95.4,Weathered basaltic ash & cinder field morphology,High Match
+L-02,Cinder Lake Crater Field,Arizona (USA),Oceanus Procellarum,Moon,92.4,94.0,91.5,91.7,Artificially cratered lunar rover training site,High Match
+L-03,Lanzarote Volcanic Geopark,Spain,Marius Hills Lava Tube,Moon,93.1,95.5,92.8,91.0,Pristine basaltic tubes for subterranean habitats,High Match
+L-04,Kilbourne Hole Maar,New Mexico (USA),Fra Mauro Highlands,Moon,88.7,91.2,87.4,87.5,Xenolith mantle ejecta & deep regolith analogs,High Match
+L-05,Svalbard Basalt Terraces,Norway,Malapert Mountain (Peak of Eternal Light),Moon,86.5,88.0,89.2,82.3,Permafrost regolith mechanical stability,Moderate Match
+
