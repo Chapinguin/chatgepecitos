@@ -248,10 +248,12 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                           ? 'bg-cyan-950/70 text-cyan-400 border border-cyan-800/50'
                           : item.status === 'partial'
                           ? 'bg-amber-950/70 text-amber-400 border border-amber-800/50'
+                          : item.status === 'pending'
+                          ? 'bg-amber-950/60 text-amber-300 border border-amber-700/50 animate-pulse'
                           : 'bg-rose-950/70 text-rose-400 border border-rose-800/50'
                       }`}
                     >
-                      {item.status.toUpperCase()}
+                      {item.status === 'pending' ? 'PENDING' : item.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-slate-400 text-[11px] max-w-sm" title={item.description}>

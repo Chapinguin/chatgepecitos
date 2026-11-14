@@ -57,7 +57,7 @@ export const parsePlanetaryData = (
     value: isNaN(Number(row.value)) ? row.value || '0' : Number(row.value),
     unit: row.unit || '',
     category: row.category || 'General Analog',
-    status: (['optimal', 'match', 'partial', 'low'].includes((row.status || '').toLowerCase())
+    status: (['optimal', 'match', 'partial', 'low', 'pending'].includes((row.status || '').toLowerCase())
       ? row.status.toLowerCase()
       : 'match') as VariableResult['status'],
     description: row.description || '',

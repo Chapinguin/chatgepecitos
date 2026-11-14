@@ -6,7 +6,7 @@ export interface VariableResult {
   value: number | string;
   unit?: string;
   change?: string;
-  status: 'optimal' | 'match' | 'partial' | 'low';
+  status: 'optimal' | 'match' | 'partial' | 'low' | 'pending';
   category: string;
   description?: string;
 }
