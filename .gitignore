@@ -38,6 +38,12 @@ venv.bak/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 
+# Heavy scientific data formats (TIFFs are handled via Git LFS in .gitattributes)
+*.h5
+*.hdf5
+*.nc
+*.parquet
+
 # Local cache & temp directories
 /storage/
 /uploads/
