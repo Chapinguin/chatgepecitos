@@ -127,3 +127,4 @@ def extract_variables_from_tiff(filepath: str, algorithm: str = "GLCM + Segmenta
         "histogram": histogram,
         "pipelineLogs": logs
     }
+

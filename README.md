@@ -61,3 +61,4 @@ El servidor API estará disponible en `http://localhost:8000` con documentación
 3. **Tabla Completa y Exportador CSV:** Filtros por categoría y descarga en 1 clic de todas las variables analizadas.
 4. **Chatgepecitos AI Copilot:** Asistente contextual capaz de responder preguntas y razonar sobre las anomalías de las variables extraídas.
 5. **Modo Seguro contra Caídas de Red:** Toggle de Simulación / API Real para garantizar que la presentación del hackathon sea a prueba de fallos.
+

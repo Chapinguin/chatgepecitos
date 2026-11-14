@@ -54,3 +54,4 @@ export interface PipelineConfig {
   normalizeIntensity: boolean;
   useGpu: boolean;
 }
+

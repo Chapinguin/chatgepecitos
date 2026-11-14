@@ -33,3 +33,4 @@ Simplemente editen la lista `variables` en `backend/pipeline.py` agregando su nu
 }
 ```
 ¡El frontend de React la detectará y mostrará automáticamente en la tabla, tarjetas y en el asistente de chat!
+
