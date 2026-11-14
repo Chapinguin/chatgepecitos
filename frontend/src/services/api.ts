@@ -1,5 +1,5 @@
 import type { AnalysisResult, PipelineConfig } from '../types';
-import { generateMockResult } from '../data/mockData';
+import { getInitialMockResult } from '../data/mockData';
 
 const API_BASE = '/api';
 
@@ -9,9 +9,8 @@ export const runPipeline = async (
   useMock: boolean = true
 ): Promise<AnalysisResult> => {
   if (useMock) {
-    // Simular latencia de computación pesada (1.8 segundos)
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-    return generateMockResult(filename, config.algorithm);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    return getInitialMockResult(config.targetBody || 'Mars');
   }
 
   try {
@@ -27,14 +26,14 @@ export const runPipeline = async (
     });
 
     if (!response.ok) {
-      throw new Error(`Error en servidor: ${response.statusText}`);
+      throw new Error(`Server error: ${response.statusText}`);
     }
 
     const data: AnalysisResult = await response.json();
     return data;
   } catch (err) {
-    console.warn('API no disponible, cambiando a modo simulación...', err);
-    return generateMockResult(filename, config.algorithm);
+    console.warn('API unavailable, falling back to mock...', err);
+    return getInitialMockResult(config.targetBody || 'Mars');
   }
 };
 
