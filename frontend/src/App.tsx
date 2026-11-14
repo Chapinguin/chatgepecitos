@@ -99,8 +99,8 @@ export function App() {
               </div>
               <h3 className="text-sm sm:text-base font-bold text-white mt-0.5">
                 {targetBody === 'Mars'
-                  ? 'Terrestrial Analogs for Jezero & Gale Crater Habitats'
-                  : 'Terrestrial Analogs for Permanent Lunar Base & Polar Traps'}
+                  ? 'Terrestrial Analogs for locations in Mars'
+                  : 'Terrestrial analogs for lunar locations'}
               </h3>
             </div>
           </div>
