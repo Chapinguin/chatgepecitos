@@ -9,3 +9,4 @@ Gradiente Máximo de Borde,edge_gradient_max,245.5,∇I,Morfología y Textura,wa
 Factor de Absorción,absorption_coeff,0.2215,cm⁻¹,Métricas Primarias,critical,Coeficiente estimado por modelo de regresión óptica
 Coeficiente de Pearson,pearson_corr,0.912,r,Correlación,normal,Consistencia cruzada entre canales
 Índice de Anisotropía,anisotropy_index,0.485,scalar,Geometría,info,Direccionalidad preferencial de las estructuras analizadas
+
