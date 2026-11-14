@@ -11,3 +11,37 @@ body {
   background-color: #0b0f19;
   color: #f1f5f9;
 }
+
+@keyframes celestial-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-16px, -24px, 0);
+  }
+}
+
+@keyframes celestial-turn {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.celestial-drift {
+  animation: celestial-drift 24s ease-in-out infinite;
+}
+
+.celestial-turn {
+  animation: celestial-turn 100s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celestial-drift,
+  .celestial-turn {
+    animation: none;
+  }
+}
