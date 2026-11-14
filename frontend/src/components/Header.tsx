@@ -1,20 +1,16 @@
 import React from 'react';
-import { Activity, Cpu, Sparkles } from 'lucide-react';
+import { RefreshCw, Sparkles, FileSpreadsheet } from 'lucide-react';
 
 interface HeaderProps {
-  isMockMode: boolean;
-  setIsMockMode: (val: boolean) => void;
-  backendOnline: boolean;
-  onRunDemo: () => void;
+  onRefreshCSV: () => void;
   isLoading: boolean;
+  lastUpdated: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  isMockMode,
-  setIsMockMode,
-  backendOnline,
-  onRunDemo,
+  onRefreshCSV,
   isLoading,
+  lastUpdated,
 }) => {
   return (
     <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40 px-6 py-3.5">
@@ -28,63 +24,33 @@ export const Header: React.FC<HeaderProps> = ({
               <h1 className="text-xl font-bold tracking-tight text-white">
                 Chatgepecitos
               </h1>
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-cyan-950 text-cyan-400 border border-cyan-800/60">
-                TIFF Analytics Engine
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800/60 flex items-center gap-1">
+                <FileSpreadsheet className="w-3 h-3" /> CSV Engine
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Extracción, análisis y visualización de variables de alta dimensionalidad
+              Visualización y razonamiento analítico de variables desde <code className="text-cyan-300 font-mono">outputs/variables.csv</code>
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-          {/* Badge de conexión */}
+          {/* Badge del CSV */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/70 border border-slate-800 text-xs text-slate-300">
-            <span
-              className={`w-2.5 h-2.5 rounded-full animate-pulse ${
-                backendOnline ? 'bg-emerald-400 shadow-emerald-500/50' : isMockMode ? 'bg-amber-400 shadow-amber-500/50' : 'bg-rose-400'
-              }`}
-            />
-            <span>
-              {backendOnline
-                ? 'Backend Python Conectado'
-                : isMockMode
-                ? 'Modo Simulación Activo (Hackathon)'
-                : 'Servidor Desconectado'}
-            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-emerald-500/50" />
+            <span>CSV Conectado</span>
+            <span className="text-slate-500 text-[10px]">({lastUpdated})</span>
           </div>
 
-          {/* Toggle de Modo Mock / Live */}
+          {/* Botón de Recargar CSV */}
           <button
-            onClick={() => setIsMockMode(!isMockMode)}
-            className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
-              isMockMode
-                ? 'bg-amber-950/40 text-amber-300 border-amber-800/60 hover:bg-amber-900/40'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
-            }`}
-            title="Alterna entre datos simulados para demo y API real"
-          >
-            {isMockMode ? 'Simulación ON' : 'API Real'}
-          </button>
-
-          {/* Botón de Ejecutar Pipeline */}
-          <button
-            onClick={onRunDemo}
+            onClick={onRefreshCSV}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium text-sm shadow-md shadow-cyan-500/25 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-medium text-sm shadow-md shadow-emerald-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            title="Vuelve a leer el archivo variables.csv del repositorio"
           >
-            {isLoading ? (
-              <>
-                <Cpu className="w-4 h-4 animate-spin text-white" />
-                <span>Procesando TIFF...</span>
-              </>
-            ) : (
-              <>
-                <Activity className="w-4 h-4" />
-                <span>Ejecutar Análisis</span>
-              </>
-            )}
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>{isLoading ? 'Leyendo CSV...' : 'Sincronizar CSV'}</span>
           </button>
         </div>
       </div>

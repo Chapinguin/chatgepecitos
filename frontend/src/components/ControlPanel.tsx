@@ -1,138 +1,119 @@
-import React from 'react';
-import { Sliders, Database, Zap } from 'lucide-react';
-import { sampleDatasets } from '../data/mockData';
-import type { PipelineConfig } from '../types';
+import React, { useRef, useState } from 'react';
+import { FileSpreadsheet, Code2, UploadCloud, Copy, Check } from 'lucide-react';
 
 interface ControlPanelProps {
-  selectedDataset: string;
-  setSelectedDataset: (id: string) => void;
-  config: PipelineConfig;
-  setConfig: React.Dispatch<React.SetStateAction<PipelineConfig>>;
+  onCustomCSVUpload: (content: string, filename: string) => void;
   isLoading: boolean;
+  totalVariables: number;
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
-  selectedDataset,
-  setSelectedDataset,
-  config,
-  setConfig,
+  onCustomCSVUpload,
   isLoading,
+  totalVariables,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const pythonSnippet = `# En tu Jupyter Notebook (.ipynb):
+import pandas as pd
+
+# Guarda tu DataFrame en la carpeta outputs:
+df_resultados.to_csv("../outputs/variables.csv", index=False)
+print("✅ CSV actualizado para React")`;
+
+  const copyCode = () => {
+    navigator.clipboard.writeText(pythonSnippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (text) {
+        onCustomCSVUpload(text, file.name);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-5">
+      {/* Estado del Archivo CSV */}
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
         <div className="flex items-center gap-2 text-slate-200 font-semibold text-sm">
-          <Database className="w-4 h-4 text-cyan-400" />
-          <span>Archivo TIFF de Entrada</span>
+          <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+          <span>Fuente de Datos Activa</span>
         </div>
-        <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-0.5 rounded">
-          Memmap 16-bit
+        <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+          CSV del Repo
         </span>
       </div>
 
-      {/* Dataset selector */}
-      <div className="space-y-2">
-        <label className="text-xs text-slate-400">Seleccionar Muestra / Escaneo</label>
-        <div className="grid grid-cols-1 gap-2">
-          {sampleDatasets.map((ds) => (
-            <div
-              key={ds.id}
-              onClick={() => !isLoading && setSelectedDataset(ds.id)}
-              className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                selectedDataset === ds.id
-                  ? 'bg-cyan-950/30 border-cyan-500/60 text-white ring-1 ring-cyan-500/30'
-                  : 'bg-slate-950/50 border-slate-800 text-slate-300 hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold">{ds.label}</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                  {ds.size}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-                {ds.description}
-              </p>
-            </div>
-          ))}
+      <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-slate-400">Ruta en el repositorio:</span>
+          <span className="font-mono text-cyan-400 font-semibold text-[11px]">outputs/variables.csv</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-slate-400">Variables en memoria:</span>
+          <span className="font-mono text-white font-bold">{totalVariables} métricas</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-slate-400">Canales/Capas:</span>
+          <span className="font-mono text-purple-400 text-[11px]">outputs/layers.csv</span>
         </div>
       </div>
 
-      {/* Parámetros de Extracción */}
-      <div className="border-t border-slate-800/60 pt-4 space-y-4">
-        <div className="flex items-center gap-2 text-slate-200 font-semibold text-sm">
-          <Sliders className="w-4 h-4 text-purple-400" />
-          <span>Configuración de Extracción</span>
-        </div>
+      {/* Subir archivo CSV alternativo */}
+      <div className="space-y-2 pt-1">
+        <label className="text-xs text-slate-400 flex items-center justify-between">
+          <span>O cargar archivo CSV manual</span>
+          <span className="text-[10px] text-slate-500">arrastra o selecciona</span>
+        </label>
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".csv"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isLoading}
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-slate-700 hover:border-cyan-500 hover:bg-cyan-950/20 text-slate-300 text-xs transition cursor-pointer"
+        >
+          <UploadCloud className="w-4 h-4 text-cyan-400" />
+          <span>Subir otro archivo .CSV</span>
+        </button>
+      </div>
 
-        {/* Algoritmo */}
-        <div className="space-y-1.5">
-          <label className="text-xs text-slate-400">Algoritmo de Extracción</label>
-          <select
-            value={config.algorithm}
-            onChange={(e) => setConfig({ ...config, algorithm: e.target.value })}
-            disabled={isLoading}
-            className="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-lg p-2.5 focus:outline-none focus:border-cyan-500"
-          >
-            <option value="GLCM + Segmentación Adaptativa">GLCM + Segmentación Adaptativa</option>
-            <option value="PCA Espectral + Reducción de Ruido">PCA Espectral + Reducción de Ruido</option>
-            <option value="Otsu Multiumbral + Wavelet">Otsu Multiumbral + Wavelet</option>
-            <option value="Deep Feature Extractor (ResNet)">Deep Feature Extractor (ResNet)</option>
-          </select>
-        </div>
-
-        {/* Slider Umbral */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-400">Sensibilidad de Umbral</span>
-            <span className="font-mono text-cyan-400">{config.threshold}σ</span>
+      {/* Snippet para el equipo de Python */}
+      <div className="border-t border-slate-800/60 pt-4 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs text-slate-300 font-medium">
+            <Code2 className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Código Python para el Notebook</span>
           </div>
-          <input
-            type="range"
-            min="0.5"
-            max="4.0"
-            step="0.1"
-            value={config.threshold}
-            onChange={(e) => setConfig({ ...config, threshold: parseFloat(e.target.value) })}
-            disabled={isLoading}
-            className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
-          />
+          <button
+            onClick={copyCode}
+            className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-white transition cursor-pointer"
+            title="Copiar código para Jupyter"
+          >
+            {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+            <span>{copied ? 'Copiado' : 'Copiar'}</span>
+          </button>
         </div>
 
-        {/* Toggles */}
-        <div className="space-y-2 pt-1 text-xs">
-          <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 border border-slate-800/60 cursor-pointer hover:bg-slate-950/70">
-            <span className="text-slate-300">Filtrado de Ruido Gaussiano</span>
-            <input
-              type="checkbox"
-              checked={config.removeBackgroundNoise}
-              onChange={(e) => setConfig({ ...config, removeBackgroundNoise: e.target.checked })}
-              className="accent-cyan-500 rounded cursor-pointer"
-            />
-          </label>
-
-          <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 border border-slate-800/60 cursor-pointer hover:bg-slate-950/70">
-            <span className="text-slate-300">Normalizar Intensidad (16-bit a Z-Score)</span>
-            <input
-              type="checkbox"
-              checked={config.normalizeIntensity}
-              onChange={(e) => setConfig({ ...config, normalizeIntensity: e.target.checked })}
-              className="accent-cyan-500 rounded cursor-pointer"
-            />
-          </label>
-
-          <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 border border-slate-800/60 cursor-pointer hover:bg-slate-950/70">
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>Aceleración PyTorch / GPU</span>
-            </span>
-            <input
-              type="checkbox"
-              checked={config.useGpu}
-              onChange={(e) => setConfig({ ...config, useGpu: e.target.checked })}
-              className="accent-amber-500 rounded cursor-pointer"
-            />
-          </label>
+        <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 font-mono text-[10px] text-slate-300 overflow-x-auto leading-relaxed">
+          <div className="text-slate-500"># Última celda de su .ipynb:</div>
+          <div>import pandas as pd</div>
+          <div className="text-cyan-300">df.to_csv(&quot;outputs/variables.csv&quot;, index=False)</div>
         </div>
       </div>
     </div>

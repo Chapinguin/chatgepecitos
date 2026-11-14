@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { ControlPanel } from './components/ControlPanel';
 import { MetricsCards } from './components/MetricsCards';
@@ -6,83 +6,75 @@ import { VariableCharts } from './components/VariableCharts';
 import { VariablesTable } from './components/VariablesTable';
 import { PipelineLogs } from './components/PipelineLogs';
 import { ChatAssistant } from './components/ChatAssistant';
-import { sampleDatasets, generateMockResult } from './data/mockData';
-import type { AnalysisResult, PipelineConfig } from './types';
-import { runPipeline, checkBackendHealth } from './services/api';
-import { Sparkles } from 'lucide-react';
+import type { AnalysisResult } from './types';
+import { loadResultsFromRepoCSV, parseCSVData } from './services/csvLoader';
+import { generateMockResult } from './data/mockData';
+import { Sparkles, FileSpreadsheet } from 'lucide-react';
 
 export function App() {
-  const [selectedDataset, setSelectedDataset] = useState<string>(sampleDatasets[0].id);
-  const [isMockMode, setIsMockMode] = useState<boolean>(true);
-  const [backendOnline, setBackendOnline] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const [config, setConfig] = useState<PipelineConfig>({
-    algorithm: 'GLCM + Segmentación Adaptativa',
-    threshold: 2.2,
-    channelMode: 'multichannel',
-    removeBackgroundNoise: true,
-    normalizeIntensity: true,
-    useGpu: false,
-  });
+  const [lastUpdated, setLastUpdated] = useState<string>('Recién cargado');
 
   const [result, setResult] = useState<AnalysisResult>(() =>
-    generateMockResult(sampleDatasets[0].id, 'GLCM + Segmentación Adaptativa')
+    generateMockResult('outputs/variables.csv', 'CSV Engine')
   );
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      const isUp = await checkBackendHealth();
-      setBackendOnline(isUp);
-      if (isUp) {
-        setIsMockMode(false);
-      }
-    };
-    checkHealth();
-    const interval = setInterval(checkHealth, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleExecute = async () => {
+  const fetchCSVData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await runPipeline(selectedDataset, config, isMockMode);
-      setResult(res);
+      const data = await loadResultsFromRepoCSV();
+      setResult(data);
+      const now = new Date();
+      setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     } catch (err) {
-      console.error('Error al ejecutar pipeline:', err);
+      console.warn('No se pudo leer el CSV remoto, manteniendo estado:', err);
     } finally {
       setIsLoading(false);
+    }
+  }, []);
+
+  // Cargar el CSV al iniciar la aplicación
+  useEffect(() => {
+    fetchCSVData();
+  }, [fetchCSVData]);
+
+  const handleCustomCSVUpload = (content: string, filename: string) => {
+    try {
+      const parsed = parseCSVData(content, undefined, filename);
+      setResult(parsed);
+      setLastUpdated(`Subido: ${filename}`);
+    } catch (err) {
+      console.error('Error al parsear archivo CSV manual:', err);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
       <Header
-        isMockMode={isMockMode}
-        setIsMockMode={setIsMockMode}
-        backendOnline={backendOnline}
-        onRunDemo={handleExecute}
+        onRefreshCSV={fetchCSVData}
         isLoading={isLoading}
+        lastUpdated={lastUpdated}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        {/* Banner de Estado Hackathon */}
-        <div className="bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-purple-950/40 border border-cyan-800/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        {/* Banner de Estado CSV */}
+        <div className="bg-gradient-to-r from-emerald-950/40 via-cyan-950/30 to-blue-950/40 border border-emerald-800/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/30">
-              <Sparkles className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+              <FileSpreadsheet className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-white">
-                Entorno de Visualización para Procesamiento TIFF de Alta Carga
+                Sincronización Directa de Variables desde el Repositorio
               </h2>
               <p className="text-xs text-slate-400">
-                Archivo activo: <span className="font-mono text-cyan-300 font-semibold">{result.filename}</span> • {result.variables.length} variables estadísticas extraídas sin saturar memoria del navegador.
+                Archivo activo: <span className="font-mono text-emerald-300 font-semibold">{result.filename}</span> • {result.variables.length} métricas cargadas y listas para visualización y chat.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 self-end sm:self-auto text-xs text-slate-400 font-mono">
-            <span>Job ID: {result.jobId}</span>
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Job: {result.jobId}</span>
           </div>
         </div>
 
@@ -91,14 +83,12 @@ export function App() {
 
         {/* 2. Grid de Control y Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Columna Izquierda: Parámetros del Archivo y Controles (4 cols) */}
+          {/* Columna Izquierda: Información de Fuente CSV y Logs (4 cols) */}
           <div className="lg:col-span-4 space-y-6">
             <ControlPanel
-              selectedDataset={selectedDataset}
-              setSelectedDataset={setSelectedDataset}
-              config={config}
-              setConfig={setConfig}
+              onCustomCSVUpload={handleCustomCSVUpload}
               isLoading={isLoading}
+              totalVariables={result.variables.length}
             />
             <PipelineLogs
               logs={result.pipelineLogs}
@@ -130,7 +120,7 @@ export function App() {
       </main>
 
       <footer className="border-t border-slate-800/80 bg-slate-950/60 py-4 text-center text-xs text-slate-500">
-        Chatgepecitos • Hackathon 36h Edition • Procesamiento de TIFFs en Python + React UI
+        Chatgepecitos • Hackathon 36h • Visualización reactiva basada en CSV y Jupyter Notebooks
       </footer>
     </div>
   );
