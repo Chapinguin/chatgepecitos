@@ -9,3 +9,4 @@ Thermal Inertia Index,thermal_inertia,385,J/(m²·K·s½),Thermodynamics,match,D
 Topographic Roughness RMS,roughness_rms,1.84,m,Geomorphology,match,Laser altimetry slope correlation with Gale and Jezero crater rims
 Water Equivalent Hydrogen,weh_index,2.15,wt %,Geochemistry,optimal,Subsurface hydrogen distribution proxy evaluated in arid soils
 Atmospheric Pressure Scale,pressure_scale,0.008,bar proxy,Environmental,low,Hypobaric analog limit simulated in hyper-arid high plateau
+
