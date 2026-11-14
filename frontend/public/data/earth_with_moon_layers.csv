@@ -1,0 +1,10 @@
+layer,index,matchScore,spectralFidelity,roughnessIndex,mineralConfidence
+Band 1 (Ultraviolet),1,79.2,84.0,2.10,82
+Band 2 (Visible 415nm),2,86.5,88.2,2.25,87
+Band 3 (Visible 750nm),3,92.4,94.1,2.40,93
+Band 4 (Visible 900nm Pyroxene),4,96.8,98.2,2.35,97
+Band 5 (Visible 950nm Ilmenite),5,94.2,95.5,2.15,95
+Band 6 (Near Infrared 1000nm),6,91.0,92.8,2.05,90
+Band 7 (Albedo Ratio),7,88.7,89.9,2.50,88
+Band 8 (Polar Radar Volatiles),8,95.1,97.0,2.65,96
+

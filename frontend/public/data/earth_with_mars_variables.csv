@@ -1,0 +1,12 @@
+name,key,value,unit,category,status,description
+Primary Spectral Match,spectral_match,89.4,%,Mineralogy & Spectra,optimal,High correlation in ferric oxide and hematite absorption bands
+Overall Analog Fidelity,analog_fidelity,87.2,%,General Match,optimal,Composite similarity index between Earth sites and Martian terrain
+Hematite & Clay Abundance,hematite_clay,0.784,ratio,Mineralogy & Spectra,match,Key mineral proxy for past lacustrine conditions in Jezero Crater
+Regolith Porosity Index,regolith_porosity,0.412,void ratio,Geomechanics,match,Soil compressibility and particle sorting match with Martian soils
+UV Radiation Exposure Proxy,uv_flux_proxy,12.8,W/m²,Environmental,match,Solar irradiance penetration proxy benchmarked at high altitude
+Perchlorate Salt Concentration,perchlorate_ppm,420,ppm,Geochemistry,partial,Soil salinity analog benchmarked against Phoenix Lander telemetry
+Thermal Inertia Index,thermal_inertia,385,J/(m²·K·s½),Thermodynamics,match,Diurnal surface heating and cooling rate correlation
+Topographic Roughness RMS,roughness_rms,1.84,m,Geomorphology,match,Laser altimetry slope correlation with Gale and Jezero crater rims
+Water Equivalent Hydrogen,weh_index,2.15,wt %,Geochemistry,optimal,Subsurface hydrogen distribution proxy evaluated in arid soils
+Atmospheric Pressure Scale,pressure_scale,0.008,bar proxy,Environmental,low,Hypobaric analog limit simulated in hyper-arid high plateau
+

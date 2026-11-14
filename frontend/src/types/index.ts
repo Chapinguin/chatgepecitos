@@ -1,10 +1,12 @@
+export type TargetBody = 'Mars' | 'Moon';
+
 export interface VariableResult {
   name: string;
   key: string;
   value: number | string;
   unit?: string;
   change?: string;
-  status: 'normal' | 'warning' | 'critical' | 'info';
+  status: 'optimal' | 'match' | 'partial' | 'low';
   category: string;
   description?: string;
 }
@@ -12,10 +14,10 @@ export interface VariableResult {
 export interface LayerMetric {
   layer: string;
   index: number;
-  intensity: number;
-  density: number;
-  noiseRatio: number;
-  particlesDetected: number;
+  matchScore: number;
+  spectralFidelity: number;
+  roughnessIndex: number;
+  mineralConfidence: number;
 }
 
 export interface HistogramBin {
@@ -23,8 +25,23 @@ export interface HistogramBin {
   count: number;
 }
 
+export interface PlanetaryAnalogSite {
+  id: string;
+  earthLocation: string;
+  earthCountry: string;
+  targetLocation: string;
+  targetBody: TargetBody;
+  overallMatchScore: number;
+  mineralMatch: number;
+  terrainMatch: number;
+  climateProxyMatch: number;
+  keyAnalogFactor: string;
+  status: 'High Match' | 'Moderate Match' | 'Candidate';
+}
+
 export interface AnalysisResult {
   jobId: string;
+  targetBody: TargetBody;
   filename: string;
   fileSizeBytes: number;
   processedAt: string;
@@ -33,7 +50,7 @@ export interface AnalysisResult {
   variables: VariableResult[];
   layerMetrics: LayerMetric[];
   histogram: HistogramBin[];
-  correlationMatrix?: { variableA: string; variableB: string; score: number }[];
+  analogSites: PlanetaryAnalogSite[];
   summary: string;
   pipelineLogs: string[];
 }
@@ -47,11 +64,10 @@ export interface ChatMessage {
 }
 
 export interface PipelineConfig {
+  targetBody: TargetBody;
   algorithm: string;
-  threshold: number;
-  channelMode: 'multichannel' | 'merged' | 'auto';
-  removeBackgroundNoise: boolean;
-  normalizeIntensity: boolean;
-  useGpu: boolean;
+  spectralTolerance: number;
+  minMatchThreshold: number;
+  normalizeBands: boolean;
+  filterAtmosphericInterference: boolean;
 }
-

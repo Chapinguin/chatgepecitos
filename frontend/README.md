@@ -1,32 +1,27 @@
-# React + TypeScript + Vite
+# 🔭 Planetary Analog Explorer — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend application for **Team chatgepecitos** in the NASA Space Apps Challenge:  
+*"Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars"*
 
-Currently, two official plugins are available:
+Built with **React 19**, **Vite**, **TypeScript**, **Tailwind CSS**, **Recharts**, and **Lucide Icons**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Exclusive Planetary Switch:** Instant toggle between `Earth with Mars` and `Earth with Moon (Permanent Base Sites)`.
+- **Analog Sites Mapping:** Interactive comparison table linking verified Earth analog locations (Atacama, Rio Tinto, Devon Island, Haleakala, Lanzarote) with target Moon & Mars craters.
+- **Multispectral & Layer Charts:** Visualizes band ratios, spectral fidelity, and match frequency histograms.
+- **Direct CSV Pipeline:** Reads `outputs/earth_with_mars_variables.csv` and `outputs/earth_with_moon_variables.csv` directly from repository exports.
+- **Chatgepecitos AI Copilot:** Contextual reasoning assistant answering questions on regolith proxies, cold trap ice, and analog scores.
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 🛠️ Development
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+App runs on `http://localhost:3000` (or `http://localhost:3001`).
