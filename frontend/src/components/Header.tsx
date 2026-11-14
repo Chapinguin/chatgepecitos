@@ -43,6 +43,10 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Sync & Source Actions */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+          <span className="hidden xl:inline-flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded bg-slate-950 text-slate-400 border border-slate-800">
+            Mode: Verified Data Only
+          </span>
+
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-300">
             <Globe2 className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
             <span className="font-mono text-[11px]">outputs/variables.csv</span>
