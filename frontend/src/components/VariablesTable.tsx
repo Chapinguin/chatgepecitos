@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { VariableResult, PlanetaryAnalogSite, TargetBody } from '../types';
 import {
   Search,
@@ -6,14 +6,12 @@ import {
   MapPin,
   Sparkles,
   SlidersHorizontal,
-  Image as ImageIcon,
   Maximize2,
   X,
   UploadCloud,
   Layers,
   ArrowRightLeft
 } from 'lucide-react';
-import { PatchesDataGrid } from './PatchesDataGrid';
 
 interface VariablesTableProps {
   variables: VariableResult[];
@@ -28,7 +26,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   targetBody,
   filename: _filename,
 }) => {
-  const [activeTab, setActiveTab] = useState<'sites' | 'variables' | 'patches'>('sites');
+  const [activeTab, setActiveTab] = useState<'sites' | 'variables'>('sites');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
@@ -36,6 +34,17 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [customSiteImages, setCustomSiteImages] = useState<Record<string, { earth?: string; target?: string }>>({});
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [uploadTargetSite, setUploadTargetSite] = useState<{ id: string; type: 'earth' | 'target' } | null>(null);
+
+  // Close modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedSiteModal(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const categories = ['all', ...Array.from(new Set(variables.map((v) => v.category)))];
 
@@ -157,58 +166,45 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Extracted Variables ({filteredVariables.length})</span>
             </button>
-            <button
-              onClick={() => setActiveTab('patches')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'patches'
-                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <ImageIcon className="w-3.5 h-3.5" />
-              <span>Satellite Patches & Visual Crops</span>
-            </button>
           </div>
         </div>
 
         {/* Filter and Download controls */}
-        {activeTab !== 'patches' && (
-          <div className="flex items-center gap-2 w-full lg:w-auto">
-            <div className="relative flex-1 lg:w-64">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="text"
-                placeholder={activeTab === 'sites' ? "Search Earth site, crater, country..." : "Search variable or mineral..."}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg focus:outline-none focus:border-cyan-500"
-              />
-            </div>
-
-            {activeTab === 'variables' && (
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="bg-slate-950 border border-slate-800 text-xs text-slate-300 rounded-lg py-1.5 px-2.5 focus:outline-none focus:border-cyan-500"
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c === 'all' ? 'All Categories' : c}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <button
-              onClick={exportCSV}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer shrink-0"
-              title="Export filtered records to CSV"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export CSV</span>
-            </button>
+        <div className="flex items-center gap-2 w-full lg:w-auto">
+          <div className="relative flex-1 lg:w-64">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
+            <input
+              type="text"
+              placeholder={activeTab === 'sites' ? "Search Earth site, crater, country..." : "Search variable or mineral..."}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg focus:outline-none focus:border-cyan-500"
+            />
           </div>
-        )}
+
+          {activeTab === 'variables' && (
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-slate-950 border border-slate-800 text-xs text-slate-300 rounded-lg py-1.5 px-2.5 focus:outline-none focus:border-cyan-500"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c === 'all' ? 'All Categories' : c}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer shrink-0"
+            title="Export filtered records to CSV"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV</span>
+          </button>
+        </div>
       </div>
 
       {/* Hidden file input for uploading custom PNGs to specific sites */}
@@ -253,7 +249,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                             setSelectedSiteModal(site);
                             setActiveModalView('earth');
                           }}
-                          className="relative w-13 h-10 rounded-lg overflow-hidden border border-emerald-500/40 bg-slate-950 shrink-0 cursor-pointer group shadow-sm hover:border-emerald-400 transition"
+                          className="relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border border-emerald-500/40 bg-slate-950 shrink-0 cursor-pointer group shadow-md hover:border-emerald-400 transition"
                           title="Click to inspect Earth satellite patch (GLORTHO)"
                         >
                           <img
@@ -268,7 +264,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                           />
                           <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition" />
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
-                            <Maximize2 className="w-3 h-3 text-emerald-300" />
+                            <Maximize2 className="w-4 h-4 text-emerald-300" />
                           </div>
                         </div>
 
@@ -298,7 +294,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                             setSelectedSiteModal(site);
                             setActiveModalView('target');
                           }}
-                          className={`relative w-13 h-10 rounded-lg overflow-hidden border bg-slate-950 shrink-0 cursor-pointer group shadow-sm transition ${
+                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border bg-slate-950 shrink-0 cursor-pointer group shadow-md transition ${
                             targetBody === 'Mars'
                               ? 'border-orange-500/40 hover:border-orange-400'
                               : 'border-cyan-500/40 hover:border-cyan-400'
@@ -322,7 +318,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                           <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition" />
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
                             <Maximize2
-                              className={`w-3 h-3 ${targetBody === 'Mars' ? 'text-orange-300' : 'text-cyan-300'}`}
+                              className={`w-4 h-4 ${targetBody === 'Mars' ? 'text-orange-300' : 'text-cyan-300'}`}
                             />
                           </div>
                         </div>
@@ -455,23 +451,18 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
           </table>
         </div>
       )}
-      {/* View 3: Satellite Patches & Visual Crops (PNG DataGrid) */}
-      {activeTab === 'patches' && (
-        <PatchesDataGrid targetBody={targetBody} />
-      )}
-
       {/* SATELLITE COMPARISON LIGHTBOX MODAL */}
       {selectedSiteModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
           onClick={() => setSelectedSiteModal(null)}
         >
           <div
-            className="bg-slate-900 border border-slate-800 rounded-2xl max-w-5xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+            className="bg-slate-900 border border-slate-750 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[82vh] my-auto relative"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b border-slate-800 bg-slate-950 gap-3">
+            {/* Modal Header (Sticky & Never Obscured) */}
+            <div className="sticky top-0 z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 sm:p-4 border-b border-slate-800 bg-slate-950/95 backdrop-blur gap-3 shrink-0">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/60 uppercase">
@@ -487,7 +478,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                 </h3>
               </div>
 
-              {/* View Selector Tabs in Modal */}
+              {/* View Selector Tabs & Close in Modal */}
               <div className="flex items-center gap-2 self-end sm:self-auto">
                 <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
                   <button
@@ -522,7 +513,8 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
                 <button
                   onClick={() => setSelectedSiteModal(null)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-rose-300 bg-slate-850 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-800/60 transition cursor-pointer shrink-0"
+                  title="Close Inspector (Esc)"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -530,10 +522,10 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="overflow-y-auto p-5 space-y-4">
+            <div className="overflow-y-auto p-4 sm:p-5 space-y-3.5">
               {/* Visual Images Comparison Grid */}
               <div
-                className={`grid gap-4 ${
+                className={`grid gap-3 ${
                   activeModalView === 'both' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
                 }`}
               >
@@ -548,7 +540,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       <span className="text-[10px] font-mono text-slate-400">{selectedSiteModal.earthCountry}</span>
                     </div>
 
-                    <div className="relative aspect-video sm:aspect-[4/3] bg-slate-900 flex items-center justify-center overflow-hidden group">
+                    <div className="relative h-44 sm:h-48 bg-slate-950 flex items-center justify-center overflow-hidden group">
                       <img
                         src={getSiteImage(selectedSiteModal, 'earth')}
                         alt={selectedSiteModal.earthLocation}
@@ -559,14 +551,14 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                           target.src = getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation);
                         }}
                       />
-                      <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/70 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md">
+                      <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md">
                         GLORTHO • 15 cm/px
                       </div>
                     </div>
 
                     {/* Upload / Replace Earth PNG */}
-                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-slate-400 font-mono">Volcanic & Regolith Analog</span>
+                    <div className="p-2 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs">
+                      <span className="text-[10px] text-slate-400 font-mono">Volcanic & Regolith Analog</span>
                       <button
                         onClick={() => {
                           setUploadTargetSite({ id: selectedSiteModal.id, type: 'earth' });
@@ -604,7 +596,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       </span>
                     </div>
 
-                    <div className="relative aspect-video sm:aspect-[4/3] bg-slate-900 flex items-center justify-center overflow-hidden group">
+                    <div className="relative h-44 sm:h-48 bg-slate-950 flex items-center justify-center overflow-hidden group">
                       <img
                         src={getSiteImage(selectedSiteModal, 'target')}
                         alt={selectedSiteModal.targetLocation}
@@ -622,8 +614,8 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       <div
                         className={`absolute bottom-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md ${
                           targetBody === 'Mars'
-                            ? 'bg-black/70 text-orange-300 border-orange-500/30'
-                            : 'bg-black/70 text-cyan-300 border-cyan-500/30'
+                            ? 'bg-black/75 text-orange-300 border-orange-500/30'
+                            : 'bg-black/75 text-cyan-300 border-cyan-500/30'
                         }`}
                       >
                         {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
@@ -631,8 +623,8 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                     </div>
 
                     {/* Upload / Replace Target PNG */}
-                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-slate-400 font-mono">Planetary Surface Ground Truth</span>
+                    <div className="p-2 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs">
+                      <span className="text-[10px] text-slate-400 font-mono">Planetary Surface Ground Truth</span>
                       <button
                         onClick={() => {
                           setUploadTargetSite({ id: selectedSiteModal.id, type: 'target' });
@@ -653,15 +645,15 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
               </div>
 
               {/* Scientific Analog Characterization & Metrics Bar */}
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                     <span className="text-xs font-bold text-white uppercase tracking-wider">
                       Analog Factor & Composition Matching
                     </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-800/60">
+                  <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-800/60">
                     Status: {selectedSiteModal.status}
                   </span>
                 </div>
@@ -671,33 +663,33 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                   and mineralogical proxy alignment between terrestrial and planetary surfaces.
                 </p>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs font-mono border-t border-slate-800/80">
-                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-xs font-mono border-t border-slate-800/80">
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Overall Match</span>
-                    <span className="font-bold text-white text-sm">{selectedSiteModal.overallMatchScore}%</span>
+                    <span className="font-bold text-white text-xs sm:text-sm">{selectedSiteModal.overallMatchScore}%</span>
                   </div>
-                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Mineral Match</span>
-                    <span className="font-bold text-cyan-400 text-sm">{selectedSiteModal.mineralMatch}%</span>
+                    <span className="font-bold text-cyan-400 text-xs sm:text-sm">{selectedSiteModal.mineralMatch}%</span>
                   </div>
-                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Terrain Match</span>
-                    <span className="font-bold text-amber-400 text-sm">{selectedSiteModal.terrainMatch}%</span>
+                    <span className="font-bold text-amber-400 text-xs sm:text-sm">{selectedSiteModal.terrainMatch}%</span>
                   </div>
-                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Climate Proxy</span>
-                    <span className="font-bold text-emerald-400 text-sm">{selectedSiteModal.climateProxyMatch}%</span>
+                    <span className="font-bold text-emerald-400 text-xs sm:text-sm">{selectedSiteModal.climateProxyMatch}%</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs font-mono text-slate-500">
-              <span>NASA Space Apps Challenge • Planetary Terrestrial Analogs</span>
+            <div className="p-3 sm:p-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs font-mono text-slate-500 shrink-0">
+              <span className="truncate max-w-[260px] sm:max-w-none">NASA Space Apps Challenge • Planetary Terrestrial Analogs</span>
               <button
                 onClick={() => setSelectedSiteModal(null)}
-                className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white transition cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white transition cursor-pointer"
               >
                 Close Inspector
               </button>
