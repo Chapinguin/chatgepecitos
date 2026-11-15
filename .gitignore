@@ -38,7 +38,7 @@ venv.bak/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 
-# Heavy data & TIFF files (root-level data only)
+# Heavy scientific data & local TIFF files
 *.tif
 *.tiff
 *.TIF
@@ -48,8 +48,11 @@ venv.bak/
 *.hdf5
 *.nc
 *.parquet
+**/Tiff/
+**/Tiffs/
+
+# Local cache & temp directories
 /storage/
-/data/
 /uploads/
 /results/
 

@@ -1,0 +1,539 @@
+{
+  "metadata": {
+    "description": "Top-5 parches terrestres m\u00e1s an\u00e1logos a Luna y Marte (Bhattacharyya)"
+  },
+  "tierra_luna": [
+    {
+      "rank": 1,
+      "similarity": 0.7624,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00128_c01408",
+        "scene_id": "tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          128,
+          1408,
+          256,
+          1536
+        ],
+        "bbox_crs": [
+          -106.77989114355788,
+          35.794832005764604,
+          -106.77918331705835,
+          35.795408876182265
+        ],
+        "center": {
+          "x": -106.77953999525538,
+          "y": 35.795122694373504,
+          "lat": 35.795122694373504,
+          "lon": -106.77953999525538
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.795123,-106.779540",
+        "crop_filename": "01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00128_c01408.png"
+      },
+      "reference": {
+        "patch_id": "luna__LRO_NAC_Shade_00N234E_150cmp_r01664_c00128",
+        "scene_id": "luna__LRO_NAC_Shade_00N234E_150cmp",
+        "body": "luna",
+        "bbox_px": [
+          1664,
+          128,
+          1792,
+          256
+        ],
+        "bbox_crs": [
+          -3817270.326364455,
+          -14325.55084506802,
+          -3814581.406236659,
+          -11637.350845067667
+        ],
+        "center": {
+          "x": -3815936.369894806,
+          "y": -12970.950063817843,
+          "lat": -0.4277545153284841,
+          "lon": -125.84151541697051
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 2,
+      "similarity": 0.7437,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c3r2_ortho_r00896_c00256",
+        "scene_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c3r2_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          896,
+          256,
+          1024,
+          384
+        ],
+        "bbox_crs": [
+          -108.12284134430584,
+          35.21170430211621,
+          -108.12209347713681,
+          35.212317964711744
+        ],
+        "center": {
+          "x": -108.12247033207746,
+          "y": 35.21201353053349,
+          "lat": 35.21201353053349,
+          "lon": -108.12247033207746
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.212014,-108.122470",
+        "crop_filename": "02_tierra__GLORTHO_NM_24June2018_Blue_Water_c3r2_ortho_r00896_c00256.png"
+      },
+      "reference": {
+        "patch_id": "luna__LRO_NAC_Shade_00N234E_150cmp_r01664_c00000",
+        "scene_id": "luna__LRO_NAC_Shade_00N234E_150cmp",
+        "body": "luna",
+        "bbox_px": [
+          1664,
+          0,
+          1792,
+          128
+        ],
+        "bbox_crs": [
+          -3819959.246492251,
+          -14325.55084506802,
+          -3817270.326364455,
+          -11637.350845067667
+        ],
+        "center": {
+          "x": -3818625.290022602,
+          "y": -12970.950063817843,
+          "lat": -0.4277545153284841,
+          "lon": -125.93019031899105
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 3,
+      "similarity": 0.7426,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c2r11_ortho_r00384_c01408",
+        "scene_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c2r11_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          384,
+          1408,
+          512,
+          1536
+        ],
+        "bbox_crs": [
+          -108.12994768449666,
+          35.13328447117984,
+          -108.12920046661634,
+          35.13389825398761
+        ],
+        "center": {
+          "x": -108.12957699437635,
+          "y": 35.13359376017282,
+          "lat": 35.13359376017282,
+          "lon": -108.12957699437635
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.133594,-108.129577",
+        "crop_filename": "03_tierra__GLORTHO_NM_24June2018_Blue_Water_c2r11_ortho_r00384_c01408.png"
+      },
+      "reference": {
+        "patch_id": "luna__LRO_NAC_Shade_00N234E_150cmp_r01664_c00000",
+        "scene_id": "luna__LRO_NAC_Shade_00N234E_150cmp",
+        "body": "luna",
+        "bbox_px": [
+          1664,
+          0,
+          1792,
+          128
+        ],
+        "bbox_crs": [
+          -3819959.246492251,
+          -14325.55084506802,
+          -3817270.326364455,
+          -11637.350845067667
+        ],
+        "center": {
+          "x": -3818625.290022602,
+          "y": -12970.950063817843,
+          "lat": -0.4277545153284841,
+          "lon": -125.93019031899105
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 4,
+      "similarity": 0.7371,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c3r4_ortho_r00128_c00128",
+        "scene_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c3r4_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          128,
+          128,
+          256,
+          256
+        ],
+        "bbox_crs": [
+          -108.1242292176119,
+          35.19735578777636,
+          -108.12348135655606,
+          35.197969694850926
+        ],
+        "center": {
+          "x": -108.12385820841622,
+          "y": 35.19766513938815,
+          "lat": 35.19766513938815,
+          "lon": -108.12385820841622
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.197665,-108.123858",
+        "crop_filename": "04_tierra__GLORTHO_NM_24June2018_Blue_Water_c3r4_ortho_r00128_c00128.png"
+      },
+      "reference": {
+        "patch_id": "luna__LRO_NAC_Shade_00N234E_150cmp_r01664_c00000",
+        "scene_id": "luna__LRO_NAC_Shade_00N234E_150cmp",
+        "body": "luna",
+        "bbox_px": [
+          1664,
+          0,
+          1792,
+          128
+        ],
+        "bbox_crs": [
+          -3819959.246492251,
+          -14325.55084506802,
+          -3817270.326364455,
+          -11637.350845067667
+        ],
+        "center": {
+          "x": -3818625.290022602,
+          "y": -12970.950063817843,
+          "lat": -0.4277545153284841,
+          "lon": -125.93019031899105
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 5,
+      "similarity": 0.7169,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r00000_c00000",
+        "scene_id": "tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          0,
+          0,
+          128,
+          128
+        ],
+        "bbox_crs": [
+          -106.65396710499625,
+          35.714325043872954,
+          -106.65322598403894,
+          35.714929638303005
+        ],
+        "center": {
+          "x": -106.65359943952134,
+          "y": 35.71462970278497,
+          "lat": 35.71462970278497,
+          "lon": -106.65359943952134
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.714630,-106.653599",
+        "crop_filename": "05_tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r00000_c00000.png"
+      },
+      "reference": {
+        "patch_id": "luna__LRO_NAC_Shade_19S070E_150cmp_r01024_c00128",
+        "scene_id": "luna__LRO_NAC_Shade_19S070E_150cmp",
+        "body": "luna",
+        "bbox_px": [
+          1024,
+          128,
+          1152,
+          256
+        ],
+        "bbox_crs": [
+          1995995.2946540064,
+          -563961.0728910457,
+          1999262.327460811,
+          -560696.3151209417
+        ],
+        "center": {
+          "x": 1997616.0492105072,
+          "y": -562315.9410459542,
+          "lat": -18.543991121710828,
+          "lon": 69.67304130855126
+        },
+        "google_maps_url": null
+      }
+    }
+  ],
+  "tierra_marte": [
+    {
+      "rank": 1,
+      "similarity": 0.9733,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00384_c01408",
+        "scene_id": "tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          384,
+          1408,
+          512,
+          1536
+        ],
+        "bbox_crs": [
+          -106.77989114355788,
+          35.79367826492927,
+          -106.77918331705835,
+          35.79425513534694
+        ],
+        "center": {
+          "x": -106.77953999525538,
+          "y": 35.79396895353817,
+          "lat": 35.79396895353817,
+          "lon": -106.77953999525538
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.793969,-106.779540",
+        "crop_filename": "01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00384_c01408.png"
+      },
+      "reference": {
+        "patch_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0_r00128_c00128",
+        "scene_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0",
+        "body": "marte",
+        "bbox_px": [
+          128,
+          128,
+          256,
+          256
+        ],
+        "bbox_crs": [
+          4575976.250853,
+          1105076.140188,
+          4578280.250853,
+          1107380.140188
+        ],
+        "center": {
+          "x": 4577119.250853,
+          "y": 1106237.140188,
+          "lat": 18.662889671483157,
+          "lon": 77.2187702696133
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 2,
+      "similarity": 0.9125,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r01280_c01152",
+        "scene_id": "tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          1280,
+          1152,
+          1408,
+          1280
+        ],
+        "bbox_crs": [
+          -106.64729701638038,
+          35.70827909957242,
+          -106.64655589542305,
+          35.70888369400248
+        ],
+        "center": {
+          "x": -106.64692935090545,
+          "y": 35.708583758484444,
+          "lat": 35.708583758484444,
+          "lon": -106.64692935090545
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.708584,-106.646929",
+        "crop_filename": "02_tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r01280_c01152.png"
+      },
+      "reference": {
+        "patch_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0_r00512_c00640",
+        "scene_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0",
+        "body": "marte",
+        "bbox_px": [
+          512,
+          640,
+          640,
+          768
+        ],
+        "bbox_crs": [
+          4585192.250853,
+          1098164.140188,
+          4587496.250853,
+          1100468.140188
+        ],
+        "center": {
+          "x": 4586335.250853,
+          "y": 1099325.140188,
+          "lat": 18.546280050703864,
+          "lon": 77.3742497639857
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 3,
+      "similarity": 0.9125,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c2r13_ortho_r00128_c01280",
+        "scene_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c2r13_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          128,
+          1280,
+          256,
+          1408
+        ],
+        "bbox_crs": [
+          -108.13133882182895,
+          35.11648203312943,
+          -108.13059199574077,
+          35.1170958177666
+        ],
+        "center": {
+          "x": -108.13096832607427,
+          "y": 35.11679132304425,
+          "lat": 35.11679132304425,
+          "lon": -108.13096832607427
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.116791,-108.130968",
+        "crop_filename": "03_tierra__GLORTHO_NM_24June2018_Blue_Water_c2r13_ortho_r00128_c01280.png"
+      },
+      "reference": {
+        "patch_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0_r00512_c00768",
+        "scene_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0",
+        "body": "marte",
+        "bbox_px": [
+          512,
+          768,
+          640,
+          896
+        ],
+        "bbox_crs": [
+          4587496.250853,
+          1098164.140188,
+          4589800.250853,
+          1100468.140188
+        ],
+        "center": {
+          "x": 4588639.250853,
+          "y": 1099325.140188,
+          "lat": 18.546280050703864,
+          "lon": 77.4131196375788
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 4,
+      "similarity": 0.9109,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c2r6_ortho_r00512_c01664",
+        "scene_id": "tierra__GLORTHO_NM_24June2018_Blue_Water_c2r6_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          512,
+          1664,
+          640,
+          1792
+        ],
+        "bbox_crs": [
+          -108.12686847796193,
+          35.17774533769824,
+          -108.12612089320923,
+          35.17835919058602
+        ],
+        "center": {
+          "x": -108.12649760583852,
+          "y": 35.178054662004975,
+          "lat": 35.178054662004975,
+          "lon": -108.12649760583852
+        },
+        "google_maps_url": "https://www.google.com/maps?q=35.178055,-108.126498",
+        "crop_filename": "04_tierra__GLORTHO_NM_24June2018_Blue_Water_c2r6_ortho_r00512_c01664.png"
+      },
+      "reference": {
+        "patch_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0_r01536_c00000",
+        "scene_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0",
+        "body": "marte",
+        "bbox_px": [
+          1536,
+          0,
+          1664,
+          128
+        ],
+        "bbox_crs": [
+          4573672.250853,
+          1079732.140188,
+          4575976.250853,
+          1082036.140188
+        ],
+        "center": {
+          "x": 4574815.250853,
+          "y": 1080893.140188,
+          "lat": 18.235321061959084,
+          "lon": 77.17990039602022
+        },
+        "google_maps_url": null
+      }
+    },
+    {
+      "rank": 5,
+      "similarity": 0.9053,
+      "earth": {
+        "patch_id": "tierra__GLORTHO_NM_25June2018_Manzanos_c2r2_ortho_r00128_c01280",
+        "scene_id": "tierra__GLORTHO_NM_25June2018_Manzanos_c2r2_ortho",
+        "body": "tierra",
+        "bbox_px": [
+          128,
+          1280,
+          256,
+          1408
+        ],
+        "bbox_crs": [
+          -106.33359852959266,
+          34.87526659409808,
+          -106.33287466531141,
+          34.87586313193607
+        ],
+        "center": {
+          "x": -106.33323942504688,
+          "y": 34.875567193243,
+          "lat": 34.875567193243,
+          "lon": -106.33323942504688
+        },
+        "google_maps_url": "https://www.google.com/maps?q=34.875567,-106.333239",
+        "crop_filename": "05_tierra__GLORTHO_NM_25June2018_Manzanos_c2r2_ortho_r00128_c01280.png"
+      },
+      "reference": {
+        "patch_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0_r01408_c00000",
+        "scene_id": "marte__JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0",
+        "body": "marte",
+        "bbox_px": [
+          1408,
+          0,
+          1536,
+          128
+        ],
+        "bbox_crs": [
+          4573672.250853,
+          1082036.140188,
+          4575976.250853,
+          1084340.140188
+        ],
+        "center": {
+          "x": 4574815.250853,
+          "y": 1083197.140188,
+          "lat": 18.27419093555218,
+          "lon": 77.17990039602022
+        },
+        "google_maps_url": null
+      }
+    }
+  ]
+}

@@ -1,6 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { VariableResult, PlanetaryAnalogSite, TargetBody } from '../types';
-import { Search, Download, MapPin, Sparkles, SlidersHorizontal } from 'lucide-react';
+import {
+  Search,
+  Download,
+  MapPin,
+  Sparkles,
+  SlidersHorizontal,
+  X,
+  Layers,
+  ArrowRightLeft,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  ExternalLink,
+  Globe
+} from 'lucide-react';
 
 interface VariablesTableProps {
   variables: VariableResult[];
@@ -18,6 +34,122 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [activeTab, setActiveTab] = useState<'sites' | 'variables'>('sites');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
+  const [activeModalView, setActiveModalView] = useState<'both' | 'earth' | 'target'>('both');
+  const [earthViewMode, setEarthViewMode] = useState<'crop' | 'satellite'>('satellite');
+  const [targetViewMode, setTargetViewMode] = useState<'crop' | 'orbital'>('orbital');
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [fullscreenImage, setFullscreenImage] = useState<{
+    url?: string;
+    title: string;
+    subtitle: string;
+    badge: string;
+    body: 'earth' | 'mars' | 'moon';
+    fallbackLabel: string;
+    location: string;
+  } | null>(null);
+  const [fullscreenZoom, setFullscreenZoom] = useState<number>(1);
+
+  const getSatelliteEmbedUrl = (site: PlanetaryAnalogSite | null) => {
+    if (!site?.googleMapsUrl) return null;
+    const match = site.googleMapsUrl.match(/q=([-\d.]+),([-\d.]+)/);
+    if (match) {
+      const [, lat, lon] = match;
+      return `https://maps.google.com/maps?q=${lat},${lon}&t=k&z=16&ie=UTF8&iwloc=&output=embed`;
+    }
+    return null;
+  };
+
+  const getTargetEmbedHtml = (site: PlanetaryAnalogSite | null, body: TargetBody) => {
+    if (!site) return '';
+    let lat = 18.6629;
+    let lon = 77.2188;
+    if (site.targetMapsUrl) {
+      const match = site.targetMapsUrl.match(/@([-\d.]+),([-\d.]+)/);
+      if (match) {
+        lat = parseFloat(match[1]);
+        lon = parseFloat(match[2]);
+      }
+    } else if (site.targetCoordinates) {
+      const parts = site.targetCoordinates.split(',');
+      if (parts.length === 2) {
+        lat = parseFloat(parts[0].replace(/[^\d.-]/g, '')) * (parts[0].includes('S') ? -1 : 1);
+        lon = parseFloat(parts[1].replace(/[^\d.-]/g, '')) * (parts[1].includes('W') ? -1 : 1);
+      }
+    } else if (body === 'Moon') {
+      lat = -0.4278;
+      lon = -125.8415;
+    }
+
+    const isMars = body.toLowerCase() === 'mars';
+    const tileUrl = isMars
+      ? 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-mars-basemap-v0-2/all/{z}/{x}/{y}.png'
+      : 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png';
+    const bodyName = isMars ? 'Mars' : 'Moon';
+    const markerColor = isMars ? '#f97316' : '#38bdf8';
+    const markerFill = isMars ? '#ea580c' : '#0284c7';
+    const locationSafe = (site.targetLocation || `${body} Target`).replace(/['"<>]/g, '');
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #030712; font-family: monospace; }
+    .leaflet-control-attribution { font-size: 8px !important; background: rgba(3,7,18,0.85) !important; color: #94a3b8 !important; padding: 2px 6px !important; }
+    .leaflet-popup-content-wrapper { background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; font-size: 11px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+    .leaflet-popup-tip { background: #0f172a; }
+    .leaflet-bar a { background-color: #0f172a !important; color: #94a3b8 !important; border-bottom: 1px solid #334155 !important; }
+    .leaflet-bar a:hover { background-color: #1e293b !important; color: #fff !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    var map = L.map('map', { center: [${lat}, ${lon}], zoom: 5, zoomControl: true, attributionControl: true });
+    L.tileLayer('${tileUrl}', {
+      maxZoom: 8,
+      minZoom: 1,
+      attribution: 'NASA / USGS / OpenPlanetary'
+    }).addTo(map);
+    var circle = L.circleMarker([${lat}, ${lon}], {
+      color: '${markerColor}',
+      fillColor: '${markerFill}',
+      fillOpacity: 0.85,
+      radius: 9,
+      weight: 2
+    }).addTo(map);
+    circle.bindPopup('<b>${locationSafe}</b><br><span style="color:${markerColor}">${lat.toFixed(4)}°, ${lon.toFixed(4)}° (${bodyName})</span>').openPopup();
+  </script>
+</body>
+</html>`;
+  };
+
+  // Reset zoom when switching active site
+  useEffect(() => {
+    setZoomLevel(1);
+    setFullscreenZoom(1);
+  }, [selectedSiteModal]);
+
+  // Close fullscreen or modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (fullscreenImage) {
+          setFullscreenImage(null);
+          setFullscreenZoom(1);
+        } else {
+          setSelectedSiteModal(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [fullscreenImage]);
 
   const categories = ['all', ...Array.from(new Set(variables.map((v) => v.category)))];
 
@@ -39,9 +171,40 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
     );
   });
 
+  const currentIndex = selectedSiteModal
+    ? filteredSites.findIndex((s) => s.id === selectedSiteModal.id)
+    : -1;
+
+  const handlePrevSite = () => {
+    if (filteredSites.length === 0) return;
+    if (currentIndex > 0) {
+      setSelectedSiteModal(filteredSites[currentIndex - 1]);
+    } else {
+      setSelectedSiteModal(filteredSites[filteredSites.length - 1]);
+    }
+  };
+
+  const handleNextSite = () => {
+    if (filteredSites.length === 0) return;
+    if (currentIndex >= 0 && currentIndex < filteredSites.length - 1) {
+      setSelectedSiteModal(filteredSites[currentIndex + 1]);
+    } else {
+      setSelectedSiteModal(filteredSites[0]);
+    }
+  };
+
+  const getSiteImage = (site: PlanetaryAnalogSite, type: 'earth' | 'target') => {
+    return type === 'earth' ? site.earthImageUrl : site.targetImageUrl;
+  };
+
+  const getSvgFallback = (label: string, body: 'earth' | 'mars' | 'moon', location: string) => {
+    const color = body === 'earth' ? '%2310b981' : body === 'mars' ? '%23f97316' : '%2338bdf8';
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="110" viewBox="0 0 160 110"><rect width="160" height="110" fill="%230b1120"/><circle cx="80" cy="50" r="26" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.5"/><circle cx="80" cy="50" r="12" fill="none" stroke="${color}" stroke-width="1" opacity="0.7"/><path d="M40 50 H120 M80 20 V80" stroke="${color}" stroke-width="0.8" opacity="0.3"/><text x="80" y="54" font-family="monospace" font-size="8" fill="${color}" text-anchor="middle" font-weight="bold">${label.toUpperCase()}</text><text x="80" y="98" font-family="monospace" font-size="7" fill="%2394a3b8" text-anchor="middle">${location.substring(0, 16)}</text></svg>`;
+  };
+
   const exportCSV = () => {
     if (activeTab === 'sites') {
-      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Key Analog Factor', 'Status'];
+      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Climate Proxy Match', 'Key Analog Factor', 'Coordinates', 'Google Maps Link', 'Target Coordinates', 'Target Maps Link', 'Status'];
       const rows = filteredSites.map((s) => [
         `"${s.id}"`,
         `"${s.earthLocation}"`,
@@ -49,9 +212,14 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         `"${s.targetLocation}"`,
         `"${s.targetBody}"`,
         `"${s.overallMatchScore}"`,
-        `"${s.mineralMatch}"`,
-        `"${s.terrainMatch}"`,
+        `"${s.mineralMatch ?? ''}"`,
+        `"${s.terrainMatch ?? ''}"`,
+        `"${s.climateProxyMatch ?? ''}"`,
         `"${s.keyAnalogFactor}"`,
+        `"${s.earthCoordinates ?? ''}"`,
+        `"${s.googleMapsUrl ?? ''}"`,
+        `"${s.targetCoordinates ?? ''}"`,
+        `"${s.targetMapsUrl ?? ''}"`,
         `"${s.status}"`,
       ]);
       const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
@@ -154,56 +322,246 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         </div>
       </div>
 
-      {/* View 1: Analog Sites Table */}
+      {/* View 1: Analog Sites Table with Responsive Layout (Sidescroll on Mobile, Full-width on Laptop) */}
       {activeTab === 'sites' && (
-        <div className="overflow-x-auto rounded-xl border border-slate-800/80">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 text-slate-400 uppercase font-mono tracking-wider border-b border-slate-800 text-[10px]">
+        <div className="rounded-xl border border-slate-800/80 overflow-x-auto shadow-lg bg-slate-900/60">
+          <div className="md:hidden flex items-center justify-between text-[10px] text-slate-400 font-mono px-3.5 py-1.5 bg-slate-950/70 border-b border-slate-800/60">
+            <span className="flex items-center gap-1.5 text-cyan-400">
+              <ArrowRightLeft className="w-3 h-3 animate-pulse" />
+              <span>Swipe horizontally to view all metrics & actions</span>
+            </span>
+            <span className="text-[9px] text-slate-500">4 Columns</span>
+          </div>
+          <table className="w-full text-left text-xs min-w-[760px]">
+            <thead className="bg-slate-950/90 text-slate-400 uppercase font-mono tracking-wider border-b border-slate-800 text-[10px]">
               <tr>
-                <th className="py-3 px-4">Earth Analog Location</th>
-                <th className="py-3 px-4">Country / Region</th>
-                <th className="py-3 px-4">Target {targetBody} Location</th>
-                <th className="py-3 px-4">Overall Match</th>
-                <th className="py-3 px-4">Mineral Match</th>
-                <th className="py-3 px-4">Terrain Match</th>
-                <th className="py-3 px-4">Key Analog Factor</th>
-                <th className="py-3 px-4">Fidelity Status</th>
+                <th className="py-3 px-4 min-w-[240px] md:w-[32%]">Earth Candidate Site</th>
+                <th className="py-3 px-4 min-w-[250px] md:w-[34%]">Target {targetBody} & Geological Factor</th>
+                <th className="py-3 px-4 min-w-[170px] md:w-[21%]">Analog Match Index</th>
+                <th className="py-3 px-4 min-w-[110px] md:w-[13%] text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
               {filteredSites.map((site) => (
-                <tr key={site.id} className="hover:bg-slate-850/50 transition">
-                  <td className="py-3.5 px-4 font-semibold text-white flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                    <span>{site.earthLocation}</span>
+                <tr
+                  key={site.id}
+                  onClick={() => {
+                    setSelectedSiteModal(site);
+                    setActiveModalView('both');
+                  }}
+                  className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                >
+                  {/* Column 1: Earth Location & Geolocation */}
+                  <td className="py-3.5 px-4 align-top">
+                    <div className="flex items-start gap-3">
+                      <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-emerald-500/40 bg-slate-950 shrink-0 shadow-sm group-hover:border-emerald-400 transition mt-0.5">
+                        <img
+                          src={getSiteImage(site, 'earth') || getSvgFallback('EARTH', 'earth', site.earthLocation)}
+                          alt={site.earthLocation}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = getSvgFallback('EARTH', 'earth', site.earthLocation);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-white text-sm font-bold group-hover:text-cyan-300 transition leading-snug">
+                            {site.earthLocation}
+                          </span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                            {site.earthCountry}
+                          </span>
+                        </div>
+
+                        {site.earthCoordinates && (
+                          <div className="text-[11px] font-mono text-slate-400 mt-0.5 flex items-center gap-1 truncate">
+                            <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
+                            <span>{site.earthCoordinates}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {site.googleMapsUrl && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSiteModal(site);
+                                  setEarthViewMode('satellite');
+                                  setActiveModalView('both');
+                                }}
+                                className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 bg-cyan-950/60 border border-cyan-800/40 px-2 py-0.5 rounded hover:border-cyan-500 transition cursor-pointer"
+                                title="Open interactive satellite terrain preview"
+                              >
+                                <Globe className="w-2.5 h-2.5 text-cyan-400" />
+                                <span>Satellite</span>
+                              </button>
+                              <a
+                                href={site.googleMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[10px] font-mono text-slate-400 hover:text-white inline-flex items-center gap-1 hover:underline"
+                                title="Open exact coordinates in Google Maps (new tab)"
+                              >
+                                <ExternalLink className="w-2.5 h-2.5" />
+                                <span>Maps</span>
+                              </a>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-400">{site.earthCountry}</td>
-                  <td className="py-3.5 px-4 font-mono font-medium text-amber-300">
-                    {site.targetLocation}
+
+                  {/* Column 2: Target Location & Geological Factor */}
+                  <td className="py-3.5 px-4 align-top">
+                    <div className="flex items-start gap-2.5">
+                      <div
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border shadow-sm transition mt-0.5 ${
+                          targetBody === 'Mars'
+                            ? 'bg-orange-950/80 border-orange-500/40 text-orange-400 group-hover:border-orange-400'
+                            : 'bg-cyan-950/80 border-cyan-500/40 text-cyan-400 group-hover:border-cyan-400'
+                        }`}
+                      >
+                        <Layers className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-mono font-bold text-amber-300 text-xs sm:text-sm">
+                            {site.targetLocation}
+                          </span>
+                          <span
+                            className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-semibold ${
+                              targetBody === 'Mars'
+                                ? 'bg-orange-950 text-orange-300 border border-orange-800/60'
+                                : 'bg-cyan-950 text-cyan-300 border border-cyan-800/60'
+                            }`}
+                          >
+                            {targetBody}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 mt-1 line-clamp-2 leading-relaxed" title={site.keyAnalogFactor}>
+                          {site.keyAnalogFactor}
+                        </p>
+
+                        {site.targetCoordinates && (
+                          <div className="flex items-center gap-1 text-[11px] font-mono text-slate-400 mt-1">
+                            <MapPin className={`w-3 h-3 shrink-0 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                            <span>{site.targetCoordinates}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {site.targetMapsUrl && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSiteModal(site);
+                                  setTargetViewMode('orbital');
+                                }}
+                                className={`px-2 py-0.5 rounded transition inline-flex items-center gap-1 text-[10px] font-mono font-medium shadow-xs cursor-pointer ${
+                                  targetBody === 'Mars'
+                                    ? 'bg-orange-950/80 hover:bg-orange-900/90 text-orange-300 border border-orange-800/60'
+                                    : 'bg-cyan-950/80 hover:bg-cyan-900/90 text-cyan-300 border border-cyan-800/60'
+                                }`}
+                                title={`View ${targetBody} orbital basemap and coordinates embed`}
+                              >
+                                <Globe className={`w-2.5 h-2.5 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                                <span>Orbital</span>
+                              </button>
+                              <a
+                                href={site.targetMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[10px] font-mono text-slate-400 hover:text-white inline-flex items-center gap-1 hover:underline"
+                                title={`Open exact coordinates in Google Maps ${targetBody} 3D (new tab)`}
+                              >
+                                <ExternalLink className="w-2.5 h-2.5" />
+                                <span>Maps</span>
+                              </a>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-16 bg-slate-800 h-2 rounded-full overflow-hidden">
+
+                  {/* Column 3: Analog Match Index & Components */}
+                  <td className="py-3.5 px-4 align-top">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Match</span>
+                          <span className="font-mono font-extrabold text-white text-sm">
+                            {site.overallMatchScore}%
+                          </span>
+                        </div>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold bg-emerald-950/70 text-emerald-400 border border-emerald-800/50">
+                          #{site.id.replace(/^[ML]-0?/, '')} Rank
+                        </span>
+                      </div>
+
+                      <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full"
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            targetBody === 'Mars'
+                              ? 'bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-400'
+                              : 'bg-gradient-to-r from-cyan-500 via-blue-400 to-emerald-400'
+                          }`}
                           style={{ width: `${site.overallMatchScore}%` }}
                         />
                       </div>
-                      <span className="font-mono font-bold text-white text-xs">
-                        {site.overallMatchScore}%
-                      </span>
+
+                      <div className="grid grid-cols-3 gap-1 pt-0.5 text-[10px] font-mono text-center">
+                        <div className="bg-slate-900/90 border border-slate-800 rounded px-1 py-0.5" title="Mineral Albedo Proxy Match">
+                          <span className="text-slate-500 block text-[9px]">MIN</span>
+                          <span className="font-bold text-cyan-400">{site.mineralMatch ?? '—'}%</span>
+                        </div>
+                        <div className="bg-slate-900/90 border border-slate-800 rounded px-1 py-0.5" title="Terrain Roughness & Morphology Match">
+                          <span className="text-slate-500 block text-[9px]">TERR</span>
+                          <span className="font-bold text-amber-400">{site.terrainMatch ?? '—'}%</span>
+                        </div>
+                        <div className="bg-slate-900/90 border border-slate-800 rounded px-1 py-0.5" title="Climate / Aridity Proxy Match">
+                          <span className="text-slate-500 block text-[9px]">CLIM</span>
+                          <span className="font-bold text-emerald-400">{site.climateProxyMatch ?? '—'}%</span>
+                        </div>
+                      </div>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono text-slate-300">{site.mineralMatch}%</td>
-                  <td className="py-3.5 px-4 font-mono text-slate-300">{site.terrainMatch}%</td>
-                  <td className="py-3.5 px-4 text-slate-400 text-[11px] max-w-xs truncate" title={site.keyAnalogFactor}>
-                    {site.keyAnalogFactor}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/70 text-emerald-400 border border-emerald-800/50">
-                      <Sparkles className="w-2.5 h-2.5" />
-                      {site.status}
-                    </span>
+
+                  {/* Column 4: Comparison Action & Status */}
+                  <td className="py-3.5 px-4 text-center align-top whitespace-nowrap min-w-[120px]">
+                    <div className="flex flex-col items-center justify-center gap-1.5 pt-0.5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSiteModal(site);
+                          setActiveModalView('both');
+                        }}
+                        className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-bold shadow-md transition-all duration-200 cursor-pointer group/btn ${
+                          targetBody === 'Mars'
+                            ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:brightness-110 shadow-orange-950/40 border border-orange-400/50 hover:scale-[1.02]'
+                            : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:brightness-110 shadow-cyan-950/40 border border-cyan-400/50 hover:scale-[1.02]'
+                        }`}
+                        title="Open Side-by-Side Satellite & Terrain Comparison"
+                      >
+                        <ArrowRightLeft className="w-3.5 h-3.5 group-hover/btn:rotate-180 transition-transform duration-300" />
+                        <span>Compare</span>
+                      </button>
+
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 font-semibold">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        {site.status}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -230,7 +588,18 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
               {filteredVariables.map((item) => (
                 <tr key={item.key} className="hover:bg-slate-850/50 transition">
                   <td className="py-3.5 px-4 font-semibold text-white">{item.name}</td>
-                  <td className="py-3.5 px-4 font-mono text-cyan-400 text-[11px]">{item.key}</td>
+                  <td className="py-3.5 px-4 font-mono text-[11px]">
+                    {item.key.startsWith('ext_ref:') || item.key.startsWith('ext:') || item.key.includes('external') ? (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-amber-300 font-semibold">{item.key.replace(/^ext_ref:/, '').replace(/^ext:/, '')}</span>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-950/80 text-amber-300 border border-amber-800/60 font-semibold" title="External Reference Benchmark (external key, not generated by internal pipeline)">
+                          EXTERNAL KEY
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-cyan-400">{item.key}</span>
+                    )}
+                  </td>
                   <td className="py-3.5 px-4 font-mono font-bold text-slate-100">
                     {item.value} {item.unit && <span className="text-[10px] text-slate-400 font-normal">{item.unit}</span>}
                   </td>
@@ -248,10 +617,12 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                           ? 'bg-cyan-950/70 text-cyan-400 border border-cyan-800/50'
                           : item.status === 'partial'
                           ? 'bg-amber-950/70 text-amber-400 border border-amber-800/50'
+                          : item.status === 'pending'
+                          ? 'bg-amber-950/60 text-amber-300 border border-amber-700/50 animate-pulse'
                           : 'bg-rose-950/70 text-rose-400 border border-rose-800/50'
                       }`}
                     >
-                      {item.status.toUpperCase()}
+                      {item.status === 'pending' ? 'PENDING' : item.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-slate-400 text-[11px] max-w-sm" title={item.description}>
@@ -261,6 +632,627 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {/* SATELLITE COMPARISON LIGHTBOX MODAL */}
+      {selectedSiteModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+          onClick={() => setSelectedSiteModal(null)}
+        >
+          <div
+            className="bg-slate-900 border border-slate-750 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[82vh] my-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header (Sticky & Never Obscured) */}
+            <div className="sticky top-0 z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 sm:p-4 border-b border-slate-800 bg-slate-950/95 backdrop-blur gap-3 shrink-0">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/60 uppercase">
+                    Terrestrial Planetary Analog Pair
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">ID: {selectedSiteModal.id}</span>
+                </div>
+                <h3 className="text-sm sm:text-base font-bold text-white mt-1">
+                  {selectedSiteModal.earthLocation} <span className="text-slate-500 font-normal">vs</span>{' '}
+                  <span className={targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}>
+                    {selectedSiteModal.targetLocation}
+                  </span>
+                </h3>
+              </div>
+
+              {/* View Selector Tabs, Site Switcher & Close in Modal */}
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                {/* Prev / Next Candidate Site Quick Switcher */}
+                {filteredSites.length > 1 && (
+                  <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
+                    <button
+                      onClick={handlePrevSite}
+                      className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      title="Previous Candidate Site"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-[11px] font-mono text-slate-400 px-1 font-semibold">
+                      {currentIndex + 1}/{filteredSites.length}
+                    </span>
+                    <button
+                      onClick={handleNextSite}
+                      className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      title="Next Candidate Site"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {/* View Mode Selector */}
+                <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
+                  <button
+                    onClick={() => setActiveModalView('both')}
+                    className={`px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                      activeModalView === 'both' ? 'bg-cyan-600 text-white font-semibold' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Side-by-Side
+                  </button>
+                  <button
+                    onClick={() => setActiveModalView('earth')}
+                    className={`px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                      activeModalView === 'earth' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Earth
+                  </button>
+                  <button
+                    onClick={() => setActiveModalView('target')}
+                    className={`px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                      activeModalView === 'target'
+                        ? targetBody === 'Mars'
+                          ? 'bg-orange-600 text-white font-semibold'
+                          : 'bg-cyan-600 text-white font-semibold'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {targetBody}
+                  </button>
+                </div>
+
+                {/* Interactive Zoom Controls */}
+                <div className="hidden sm:flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs font-mono">
+                  <button
+                    onClick={() => setZoomLevel((z) => Math.max(1, Number((z - 0.5).toFixed(1))))}
+                    disabled={zoomLevel <= 1}
+                    className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                    title="Zoom Out (-)"
+                  >
+                    <ZoomOut className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[11px] font-bold text-cyan-400 px-1 min-w-[28px] text-center">{zoomLevel}x</span>
+                  <button
+                    onClick={() => setZoomLevel((z) => Math.min(2.5, Number((z + 0.5).toFixed(1))))}
+                    disabled={zoomLevel >= 2.5}
+                    className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                    title="Zoom In (+)"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setSelectedSiteModal(null)}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-rose-300 bg-slate-850 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-800/60 transition cursor-pointer shrink-0"
+                  title="Close Inspector (Esc)"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="overflow-y-auto p-4 sm:p-5 space-y-3.5">
+              {/* DUAL / SINGLE SATELLITE IMAGE CARDS */}
+              <div
+                className={`grid gap-3 ${
+                  activeModalView === 'both' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
+                }`}
+              >
+                {/* Earth Satellite Patch */}
+                {(activeModalView === 'both' || activeModalView === 'earth') && (
+                  <div className="bg-slate-950 rounded-xl border border-emerald-500/30 overflow-hidden flex flex-col shadow-md">
+                    <div className="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>Earth: {selectedSiteModal.earthLocation}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {/* Toggle Patch Crop vs Satellite Terrain */}
+                        {getSatelliteEmbedUrl(selectedSiteModal) && (
+                          <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEarthViewMode('crop');
+                              }}
+                              className={`px-2 py-0.5 rounded transition cursor-pointer font-medium ${
+                                earthViewMode === 'crop'
+                                  ? 'bg-emerald-600 text-white font-bold'
+                                  : 'text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              Patch Crop
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEarthViewMode('satellite');
+                              }}
+                              className={`px-2 py-0.5 rounded transition cursor-pointer flex items-center gap-1 font-medium ${
+                                earthViewMode === 'satellite'
+                                  ? 'bg-emerald-600 text-white font-bold'
+                                  : 'text-slate-400 hover:text-white'
+                              }`}
+                              title="Interactive satellite terrain imagery"
+                            >
+                              <Globe className="w-2.5 h-2.5" />
+                              <span>Satellite Terrain</span>
+                            </button>
+                          </div>
+                        )}
+                        <span className="hidden lg:inline text-[10px] font-mono text-slate-400">{selectedSiteModal.earthCountry}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (earthViewMode === 'satellite' && selectedSiteModal.googleMapsUrl) {
+                              window.open(selectedSiteModal.googleMapsUrl, '_blank', 'noopener,noreferrer');
+                              return;
+                            }
+                            setFullscreenZoom(1);
+                            setFullscreenImage({
+                              url: getSiteImage(selectedSiteModal, 'earth'),
+                              title: `Earth: ${selectedSiteModal.earthLocation}`,
+                              subtitle: `${selectedSiteModal.earthCountry} • GLORTHO Terrestrial Sensor`,
+                              badge: 'Earth Surface',
+                              body: 'earth',
+                              fallbackLabel: 'EARTH CROP',
+                              location: selectedSiteModal.earthLocation,
+                            });
+                          }}
+                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-emerald-950 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-600/50 transition flex items-center gap-1 text-[10px] font-mono cursor-pointer"
+                          title={earthViewMode === 'satellite' ? 'Open Full Satellite Terrain in Google Maps' : 'Open Fullscreen View'}
+                        >
+                          <Maximize2 className="w-3 h-3 text-emerald-400" />
+                          <span className="hidden sm:inline">Fullscreen</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {earthViewMode === 'satellite' && getSatelliteEmbedUrl(selectedSiteModal) ? (
+                      <div className="relative h-48 sm:h-56 bg-slate-950 w-full overflow-hidden">
+                        <iframe
+                          title={`Satellite Terrain: ${selectedSiteModal.earthLocation}`}
+                          src={getSatelliteEmbedUrl(selectedSiteModal)!}
+                          className="w-full h-full border-0"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 left-2 text-[10px] font-mono bg-black/85 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40 backdrop-blur-md pointer-events-none flex items-center gap-1">
+                          <Globe className="w-2.5 h-2.5 text-emerald-400" />
+                          <span>Satellite Terrain View • True Topography</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="relative h-48 sm:h-56 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                        onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
+                        title="Click to toggle 2x optical zoom"
+                      >
+                        <img
+                          src={getSiteImage(selectedSiteModal, 'earth') || getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation)}
+                          alt={selectedSiteModal.earthLocation}
+                          className="w-full h-full object-cover transition-transform duration-300 ease-out"
+                          style={{
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center center',
+                          }}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation);
+                          }}
+                        />
+                        <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md pointer-events-none">
+                          GLORTHO • 15 cm/px
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Earth Card Footer */}
+                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400">
+                          {selectedSiteModal.earthCoordinates || 'Terrestrial Morphology Context'}
+                        </span>
+                        {selectedSiteModal.googleMapsUrl && (
+                          <a
+                            href={selectedSiteModal.googleMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 hover:underline"
+                            title="Open exact coordinates in Google Maps"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Maps</span>
+                          </a>
+                        )}
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40 font-semibold">
+                        Earth Surface
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Target Martian / Lunar Satellite Patch */}
+                {(activeModalView === 'both' || activeModalView === 'target') && (
+                  <div
+                    className={`bg-slate-950 rounded-xl overflow-hidden flex flex-col shadow-md border ${
+                      targetBody === 'Mars' ? 'border-orange-500/30' : 'border-cyan-500/30'
+                    }`}
+                  >
+                    <div className="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                      <div
+                        className={`flex items-center gap-1.5 font-bold ${
+                          targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'
+                        }`}
+                      >
+                        <Layers className="w-3.5 h-3.5" />
+                        <span>
+                          {targetBody}: {selectedSiteModal.targetLocation}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {/* Toggle between Crop Patch and Orbital Map View */}
+                        <div className="flex items-center gap-1 bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/80">
+                          <button
+                            onClick={() => setTargetViewMode('crop')}
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono transition flex items-center gap-1 cursor-pointer ${
+                              targetViewMode === 'crop'
+                                ? targetBody === 'Mars'
+                                  ? 'bg-orange-600 text-white font-bold shadow-xs'
+                                  : 'bg-cyan-600 text-white font-bold shadow-xs'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                            title={`View high-resolution ${targetBody === 'Mars' ? 'HiRISE' : 'LRO NAC'} optical sensor patch`}
+                          >
+                            <Layers className="w-2.5 h-2.5" />
+                            <span>{targetBody === 'Mars' ? 'HiRISE Patch' : 'LRO Patch'}</span>
+                          </button>
+                          <button
+                            onClick={() => setTargetViewMode('orbital')}
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono transition flex items-center gap-1 cursor-pointer ${
+                              targetViewMode === 'orbital'
+                                ? targetBody === 'Mars'
+                                  ? 'bg-amber-600 text-white font-bold shadow-xs'
+                                  : 'bg-blue-600 text-white font-bold shadow-xs'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                            title={`View ${targetBody} orbital basemap and coordinates embed`}
+                          >
+                            <Globe className="w-2.5 h-2.5" />
+                            <span>Orbital View</span>
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (targetViewMode === 'orbital' && selectedSiteModal.targetMapsUrl) {
+                              window.open(selectedSiteModal.targetMapsUrl, '_blank', 'noopener,noreferrer');
+                              return;
+                            }
+                            setFullscreenZoom(1);
+                            setFullscreenImage({
+                              url: getSiteImage(selectedSiteModal, 'target'),
+                              title: `${targetBody}: ${selectedSiteModal.targetLocation}`,
+                              subtitle: `${targetBody === 'Mars' ? 'HiRISE 25 cm/px' : 'LRO NAC 150 cm/px'} • Orbital Ground Truth`,
+                              badge: `${targetBody} Surface`,
+                              body: targetBody === 'Mars' ? 'mars' : 'moon',
+                              fallbackLabel: targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                              location: selectedSiteModal.targetLocation,
+                            });
+                          }}
+                          className={`px-2 py-0.5 rounded bg-slate-800 transition flex items-center gap-1 text-[10px] font-mono cursor-pointer border border-slate-700 ${
+                            targetBody === 'Mars'
+                              ? 'hover:bg-orange-950 text-slate-300 hover:text-orange-300 hover:border-orange-600/50'
+                              : 'hover:bg-cyan-950 text-slate-300 hover:text-cyan-300 hover:border-cyan-600/50'
+                          }`}
+                          title={targetViewMode === 'orbital' ? `Open Full ${targetBody} Orbital View in Google Maps Space (3D)` : 'Open Fullscreen View'}
+                        >
+                          <Maximize2 className={`w-3 h-3 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                          <span className="hidden sm:inline">Fullscreen</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {targetViewMode === 'orbital' ? (
+                      <div className="relative h-48 sm:h-56 bg-slate-950 w-full overflow-hidden">
+                        <iframe
+                          title={`Orbital Surface: ${selectedSiteModal.targetLocation}`}
+                          srcDoc={getTargetEmbedHtml(selectedSiteModal, targetBody)}
+                          className="w-full h-full border-0"
+                          loading="lazy"
+                        />
+                        <div
+                          className={`absolute top-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none flex items-center gap-1 ${
+                            targetBody === 'Mars'
+                              ? 'bg-black/85 text-orange-300 border-orange-500/40'
+                              : 'bg-black/85 text-cyan-300 border-cyan-500/40'
+                          }`}
+                        >
+                          <Globe className={`w-2.5 h-2.5 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                          <span>Orbital Surface View • {targetBody} Basemap</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="relative h-48 sm:h-56 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                        onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
+                        title="Click to toggle 2x optical zoom"
+                      >
+                        <img
+                          src={
+                            getSiteImage(selectedSiteModal, 'target') ||
+                            getSvgFallback(
+                              targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                              targetBody === 'Mars' ? 'mars' : 'moon',
+                              selectedSiteModal.targetLocation
+                            )
+                          }
+                          alt={selectedSiteModal.targetLocation}
+                          className="w-full h-full object-cover transition-transform duration-300 ease-out"
+                          style={{
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center center',
+                          }}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = getSvgFallback(
+                              targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                              targetBody === 'Mars' ? 'mars' : 'moon',
+                              selectedSiteModal.targetLocation
+                            );
+                          }}
+                        />
+                        <div
+                          className={`absolute bottom-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none ${
+                            targetBody === 'Mars'
+                              ? 'bg-black/75 text-orange-300 border-orange-500/30'
+                              : 'bg-black/75 text-cyan-300 border-cyan-500/30'
+                          }`}
+                        >
+                          {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Target Card Footer */}
+                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400">
+                          {selectedSiteModal.targetCoordinates || 'Orbital Ground Truth'}
+                        </span>
+                        {selectedSiteModal.targetMapsUrl && (
+                          <a
+                            href={selectedSiteModal.targetMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`text-[10px] inline-flex items-center gap-1 hover:underline ${
+                              targetBody === 'Mars' ? 'text-orange-400 hover:text-orange-300' : 'text-cyan-400 hover:text-cyan-300'
+                            }`}
+                            title={`Open exact coordinates in Google Maps ${targetBody} 3D`}
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Maps</span>
+                          </a>
+                        )}
+                      </div>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
+                          targetBody === 'Mars'
+                            ? 'bg-orange-950 text-orange-400 border-orange-800/40'
+                            : 'bg-cyan-950 text-cyan-400 border-cyan-800/40'
+                        }`}
+                      >
+                        {targetBody} Surface
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Scientific Analog Characterization & Metrics Bar */}
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                      Analog Factor & Composition Matching
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-800/60">
+                    Status: {selectedSiteModal.status}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {selectedSiteModal.keyAnalogFactor}. Comparison derived from high-resolution spatial texture
+                  and mineralogical proxy alignment between terrestrial and planetary surfaces.
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-xs font-mono border-t border-slate-800/80">
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-500 uppercase block">Overall Match</span>
+                    <span className="font-bold text-white text-xs sm:text-sm">{selectedSiteModal.overallMatchScore}%</span>
+                  </div>
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-500 uppercase block">Mineral Match</span>
+                    <span className="font-bold text-cyan-400 text-xs sm:text-sm">
+                      {selectedSiteModal.mineralMatch !== null ? `${selectedSiteModal.mineralMatch}%` : '—'}
+                    </span>
+                  </div>
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-500 uppercase block">Terrain Match</span>
+                    <span className="font-bold text-amber-400 text-xs sm:text-sm">
+                      {selectedSiteModal.terrainMatch !== null ? `${selectedSiteModal.terrainMatch}%` : '—'}
+                    </span>
+                  </div>
+                  <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-500 uppercase block">Climate Proxy</span>
+                    <span className="font-bold text-emerald-400 text-xs sm:text-sm">
+                      {selectedSiteModal.climateProxyMatch !== null ? `${selectedSiteModal.climateProxyMatch}%` : '—'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3 sm:p-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs font-mono text-slate-500 shrink-0">
+              <span className="truncate max-w-[260px] sm:max-w-none">NASA Space Apps Challenge • Planetary Terrestrial Analogs</span>
+              <button
+                onClick={() => setSelectedSiteModal(null)}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white transition cursor-pointer"
+              >
+                Close Inspector
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* High-Resolution Fullscreen Lightbox Overlay */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-xl flex flex-col p-4 sm:p-6 animate-fadeIn select-none"
+          onClick={() => {
+            setFullscreenImage(null);
+            setFullscreenZoom(1);
+          }}
+        >
+          {/* Top Bar */}
+          <div
+            className="flex items-center justify-between gap-4 pb-3 sm:pb-4 border-b border-slate-800 shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-2 rounded-lg border ${
+                  fullscreenImage.body === 'earth'
+                    ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
+                    : fullscreenImage.body === 'mars'
+                    ? 'bg-orange-950/60 text-orange-400 border-orange-800/60'
+                    : 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60'
+                }`}
+              >
+                {fullscreenImage.body === 'earth' ? (
+                  <MapPin className="w-5 h-5" />
+                ) : (
+                  <Layers className="w-5 h-5" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                    {fullscreenImage.title}
+                  </h3>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                      fullscreenImage.body === 'earth'
+                        ? 'bg-emerald-950 text-emerald-300 border-emerald-700/60'
+                        : fullscreenImage.body === 'mars'
+                        ? 'bg-orange-950 text-orange-300 border-orange-700/60'
+                        : 'bg-cyan-950 text-cyan-300 border-cyan-700/60'
+                    }`}
+                  >
+                    {fullscreenImage.badge}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                  {fullscreenImage.subtitle}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Controls: Zoom & Close */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 font-mono text-xs">
+                <button
+                  onClick={() => setFullscreenZoom((z) => Math.max(1, Number((z - 0.5).toFixed(1))))}
+                  disabled={fullscreenZoom <= 1}
+                  className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Zoom Out (-)"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-bold text-cyan-400 px-2 min-w-[36px] text-center">
+                  {fullscreenZoom}x
+                </span>
+                <button
+                  onClick={() => setFullscreenZoom((z) => Math.min(3.5, Number((z + 0.5).toFixed(1))))}
+                  disabled={fullscreenZoom >= 3.5}
+                  className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Zoom In (+)"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  setFullscreenImage(null);
+                  setFullscreenZoom(1);
+                }}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 transition flex items-center gap-1.5 cursor-pointer shadow-lg"
+                title="Close Fullscreen (Esc)"
+              >
+                <X className="w-4 h-4" />
+                <span className="hidden sm:inline">Close Fullscreen</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Fullscreen Image Content Area */}
+          <div
+            className="flex-1 overflow-auto flex items-center justify-center p-2 sm:p-4 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={fullscreenImage.url || getSvgFallback(fullscreenImage.fallbackLabel, fullscreenImage.body, fullscreenImage.location)}
+              alt={fullscreenImage.title}
+              className="max-h-[82vh] max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 transition-transform duration-200 cursor-zoom-in"
+              style={{
+                transform: `scale(${fullscreenZoom})`,
+                transformOrigin: 'center center',
+              }}
+              onClick={() =>
+                setFullscreenZoom((z) => (z === 1 ? 2 : z === 2 ? 3 : 1))
+              }
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = getSvgFallback(
+                  fullscreenImage.fallbackLabel,
+                  fullscreenImage.body,
+                  fullscreenImage.location
+                );
+              }}
+            />
+
+            <div className="absolute bottom-4 left-6 text-[11px] font-mono bg-black/85 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 backdrop-blur-md pointer-events-none hidden sm:block">
+              Click image to cycle zoom levels (1x → 2x → 3x) • Drag or scroll to inspect
+            </div>
+          </div>
         </div>
       )}
     </div>

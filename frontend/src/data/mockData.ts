@@ -12,282 +12,197 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
     durationSeconds: 0.14,
     status: 'completed',
     summary: isMars
-      ? 'Planetary Analog Model calibrated for Earth with Mars. Prime matches identified in hyper-arid perchlorate basins and volcanic basalt provinces.'
-      : 'Planetary Analog Model calibrated for Earth with Moon. Highest correlation established for lunar south pole permanent base locations and basaltic lava tubes.',
+      ? 'Planetary Analog Model calibrated for Earth with Mars (Jemez, Blue Water, Manzanos in NM vs Jezero CTX/HiRISE). 5,175 patches evaluated.'
+      : 'Planetary Analog Model calibrated for Earth with Moon (Jemez, Blue Water, Manzanos in NM vs LRO NAC). 5,175 patches evaluated.',
     variables: isMars
       ? [
           {
-            name: 'Primary Spectral Match',
-            key: 'spectral_match',
-            value: 89.4,
+            name: 'Top Analog Match',
+            key: 'top_match',
+            value: 97.33,
             unit: '%',
-            change: '+3.2%',
+            change: '+12.4%',
             status: 'optimal',
-            category: 'Mineralogy & Spectra',
-            description: 'Correlation in ferric oxide and hematite absorption bands.'
+            category: 'Bhattacharyya Similarity',
+            description: 'Highest multivariate texture correlation reached in New Mexico Jemez terrain'
           },
           {
-            name: 'Overall Analog Fidelity',
-            key: 'analog_fidelity',
-            value: 87.2,
+            name: 'Analyzed Surface Patches',
+            key: 'analyzed_patches',
+            value: 5175,
+            unit: 'tiles',
+            change: '+5170',
+            status: 'optimal',
+            category: 'Spatial Coverage',
+            description: 'Total 128x128 GeoTIFF orthophoto tiles evaluated across regional scenes'
+          },
+          {
+            name: 'High-Fidelity Candidates',
+            key: 'high_fidelity',
+            value: 2836,
+            unit: 'tiles',
+            change: '+54.8%',
+            status: 'match',
+            category: 'Fidelity Threshold',
+            description: 'Patches exceeding 75% structural and luminance match with Martian surface'
+          },
+          {
+            name: 'Mean Surface Similarity',
+            key: 'mean_match',
+            value: 54.18,
             unit: '%',
-            change: '+1.8%',
-            status: 'optimal',
-            category: 'General Match',
-            description: 'Composite analog similarity index with Martian crust.'
-          },
-          {
-            name: 'Hematite & Clay Ratio',
-            key: 'hematite_clay',
-            value: 0.784,
-            unit: 'index',
-            change: '+0.04',
+            change: '+6.2%',
             status: 'match',
-            category: 'Mineralogy & Spectra',
-            description: 'Key mineral proxy for past lacustrine conditions in Jezero Crater.'
-          },
-          {
-            name: 'Regolith Porosity Void',
-            key: 'regolith_porosity',
-            value: 0.412,
-            unit: 'e',
-            status: 'match',
-            category: 'Geomechanics',
-            description: 'Soil compressibility and particle sorting match with Martian soils.'
-          },
-          {
-            name: 'Thermal Inertia Correlation',
-            key: 'thermal_inertia',
-            value: 385,
-            unit: 'J/(m²·K·s½)',
-            status: 'match',
-            category: 'Thermodynamics',
-            description: 'Diurnal surface heating and cooling curve matching.'
-          },
-          {
-            name: 'UV Flux Proxy Exposure',
-            key: 'uv_flux_proxy',
-            value: 12.8,
-            unit: 'W/m²',
-            status: 'match',
-            category: 'Environmental',
-            description: 'Extreme solar irradiance penetration benchmarked at high altitude.'
+            category: 'Regional Baseline',
+            description: 'Average terrain correlation across all evaluated New Mexico orthophoto tiles'
           }
         ]
       : [
           {
-            name: 'Anorthosite Highland Match',
-            key: 'anorthosite_match',
-            value: 93.6,
+            name: 'Top Analog Match',
+            key: 'top_match',
+            value: 76.24,
             unit: '%',
-            change: '+2.4%',
+            change: '+8.1%',
             status: 'optimal',
-            category: 'Mineralogy & Spectra',
-            description: 'Highland crust analog benchmarked to Apollo 16 lunar return samples.'
+            category: 'Bhattacharyya Similarity',
+            description: 'Highest multivariate texture correlation reached in New Mexico Jemez volcanic field'
           },
           {
-            name: 'Permanent Shadow Ice Proxy',
-            key: 'psr_ice_proxy',
-            value: 88.1,
+            name: 'Analyzed Surface Patches',
+            key: 'analyzed_patches',
+            value: 5175,
+            unit: 'tiles',
+            change: '+5170',
+            status: 'optimal',
+            category: 'Spatial Coverage',
+            description: 'Total 128x128 GeoTIFF orthophoto tiles evaluated against Moon LRO NAC shaded models'
+          },
+          {
+            name: 'High-Fidelity Candidates',
+            key: 'high_fidelity',
+            value: 84,
+            unit: 'tiles',
+            change: '+1.6%',
+            status: 'match',
+            category: 'Fidelity Threshold',
+            description: 'Patches exceeding 65% match given harsh lunar regolith optical divergence'
+          },
+          {
+            name: 'Mean Surface Similarity',
+            key: 'mean_match',
+            value: 28.10,
             unit: '%',
-            change: '+5.1%',
-            status: 'optimal',
-            category: 'Ice & Volatiles',
-            description: 'Cold trap volatile proxy for Shackleton and Faustini crater bases.'
-          },
-          {
-            name: 'Ilmenite (Titanium) Content',
-            key: 'ilmenite_conc',
-            value: 14.2,
-            unit: 'wt %',
+            change: '+3.5%',
             status: 'match',
-            category: 'Mineralogy & Spectra',
-            description: 'Titanium-rich lunar mare regolith analog correlation.'
-          },
-          {
-            name: 'Micrometeorite Abrasion Index',
-            key: 'abrasion_index',
-            value: 78.5,
-            unit: 'index',
-            status: 'match',
-            category: 'Geomorphology',
-            description: 'Mechanical weathering and regolith grain roundness metric.'
-          },
-          {
-            name: 'Lava Tube Structural Stability',
-            key: 'lava_tube_factor',
-            value: 0.925,
-            unit: 'safety factor',
-            status: 'optimal',
-            category: 'Habitability',
-            description: 'Ceiling integrity metric for Marius Hills pit base development.'
-          },
-          {
-            name: 'Electrostatic Dust Levitation',
-            key: 'dust_cohesion',
-            value: 0.615,
-            unit: 'kPa',
-            status: 'match',
-            category: 'Geomechanics',
-            description: 'Fine lunar simulant cohesion proxy under dry vacuum condition.'
+            category: 'Regional Baseline',
+            description: 'Average terrain correlation across all evaluated New Mexico orthophoto tiles'
           }
         ],
     layerMetrics: isMars
       ? [
-          { layer: 'Band 1 (Blue)', index: 1, matchScore: 74.5, spectralFidelity: 82.1, roughnessIndex: 1.42, mineralConfidence: 78 },
-          { layer: 'Band 2 (Green)', index: 2, matchScore: 81.2, spectralFidelity: 85.4, roughnessIndex: 1.55, mineralConfidence: 83 },
-          { layer: 'Band 3 (Red)', index: 3, matchScore: 94.8, spectralFidelity: 96.2, roughnessIndex: 1.88, mineralConfidence: 95 },
-          { layer: 'Band 4 (NIR 1)', index: 4, matchScore: 91.5, spectralFidelity: 93.8, roughnessIndex: 1.72, mineralConfidence: 92 },
-          { layer: 'Band 5 (SWIR 1)', index: 5, matchScore: 88.4, spectralFidelity: 89.5, roughnessIndex: 1.91, mineralConfidence: 89 },
-          { layer: 'Band 6 (SWIR 2)', index: 6, matchScore: 86.2, spectralFidelity: 87.0, roughnessIndex: 1.65, mineralConfidence: 85 },
-          { layer: 'Band 7 (Thermal)', index: 7, matchScore: 82.9, spectralFidelity: 84.1, roughnessIndex: 2.05, mineralConfidence: 81 },
-          { layer: 'Band 8 (Ferric)', index: 8, matchScore: 96.3, spectralFidelity: 97.5, roughnessIndex: 1.79, mineralConfidence: 98 }
+          { layer: 'Band 1 (Visible Blue)', index: 1, matchScore: 82.4, spectralFidelity: 85.1, roughnessIndex: 0.42, mineralConfidence: 88 },
+          { layer: 'Band 2 (Visible Green)', index: 2, matchScore: 86.1, spectralFidelity: 88.4, roughnessIndex: 0.45, mineralConfidence: 90 },
+          { layer: 'Band 3 (Visible Red)', index: 3, matchScore: 94.8, spectralFidelity: 96.2, roughnessIndex: 0.51, mineralConfidence: 95 },
+          { layer: 'Band 4 (Near-IR / Texture)', index: 4, matchScore: 97.3, spectralFidelity: 95.8, roughnessIndex: 0.58, mineralConfidence: 97 },
+          { layer: 'Band 5 (Local Variance / Std)', index: 5, matchScore: 91.2, spectralFidelity: 89.5, roughnessIndex: 0.62, mineralConfidence: 91 },
+          { layer: 'Band 6 (Gradient Magnitude)', index: 6, matchScore: 87.9, spectralFidelity: 86.3, roughnessIndex: 0.54, mineralConfidence: 89 },
+          { layer: 'Band 7 (Bhattacharyya Composite)', index: 7, matchScore: 97.3, spectralFidelity: 96.0, roughnessIndex: 0.55, mineralConfidence: 96 }
         ]
       : [
-          { layer: 'Band 1 (UV)', index: 1, matchScore: 79.2, spectralFidelity: 84.0, roughnessIndex: 2.10, mineralConfidence: 82 },
-          { layer: 'Band 2 (415nm)', index: 2, matchScore: 86.5, spectralFidelity: 88.2, roughnessIndex: 2.25, mineralConfidence: 87 },
-          { layer: 'Band 3 (750nm)', index: 3, matchScore: 92.4, spectralFidelity: 94.1, roughnessIndex: 2.40, mineralConfidence: 93 },
-          { layer: 'Band 4 (900nm Pyroxene)', index: 4, matchScore: 96.8, spectralFidelity: 98.2, roughnessIndex: 2.35, mineralConfidence: 97 },
-          { layer: 'Band 5 (950nm Ilmenite)', index: 5, matchScore: 94.2, spectralFidelity: 95.5, roughnessIndex: 2.15, mineralConfidence: 95 },
-          { layer: 'Band 6 (1000nm NIR)', index: 6, matchScore: 91.0, spectralFidelity: 92.8, roughnessIndex: 2.05, mineralConfidence: 90 },
-          { layer: 'Band 7 (Albedo Ratio)', index: 7, matchScore: 88.7, spectralFidelity: 89.9, roughnessIndex: 2.50, mineralConfidence: 88 },
-          { layer: 'Band 8 (Polar Volatiles)', index: 8, matchScore: 95.1, spectralFidelity: 97.0, roughnessIndex: 2.65, mineralConfidence: 96 }
+          { layer: 'Band 1 (Visible Blue / UV)', index: 1, matchScore: 62.1, spectralFidelity: 65.3, roughnessIndex: 0.38, mineralConfidence: 70 },
+          { layer: 'Band 2 (Visible Green / 415nm)', index: 2, matchScore: 68.4, spectralFidelity: 70.1, roughnessIndex: 0.41, mineralConfidence: 72 },
+          { layer: 'Band 3 (Visible Red / 750nm)', index: 3, matchScore: 73.5, spectralFidelity: 74.8, roughnessIndex: 0.47, mineralConfidence: 75 },
+          { layer: 'Band 4 (Near-IR / LRO Shade)', index: 4, matchScore: 76.2, spectralFidelity: 77.5, roughnessIndex: 0.52, mineralConfidence: 78 },
+          { layer: 'Band 5 (Local Variance / Std)', index: 5, matchScore: 70.8, spectralFidelity: 69.4, roughnessIndex: 0.56, mineralConfidence: 71 },
+          { layer: 'Band 6 (Gradient Magnitude)', index: 6, matchScore: 67.4, spectralFidelity: 66.1, roughnessIndex: 0.49, mineralConfidence: 69 },
+          { layer: 'Band 7 (Bhattacharyya Composite)', index: 7, matchScore: 76.2, spectralFidelity: 75.0, roughnessIndex: 0.51, mineralConfidence: 76 }
         ],
     histogram: isMars
       ? [
-          { range: '0-50% Match', count: 120 },
-          { range: '50-65% Match', count: 480 },
-          { range: '65-75% Match', count: 1250 },
-          { range: '75-85% Match', count: 3400 },
-          { range: '85-92% Match', count: 5800 },
-          { range: '92-96% Match', count: 4100 },
-          { range: '96-98% Match', count: 1850 },
-          { range: '98%+ Match', count: 620 }
+          { range: '0-50% Match', count: 1690 },
+          { range: '50-65% Match', count: 125 },
+          { range: '65-75% Match', count: 524 },
+          { range: '75-85% Match', count: 2231 },
+          { range: '85-92% Match', count: 485 },
+          { range: '92-96% Match', count: 115 },
+          { range: '96-98% Match', count: 5 },
+          { range: '98%+ Match', count: 0 }
         ]
       : [
-          { range: '0-50% Match', count: 90 },
-          { range: '50-65% Match', count: 390 },
-          { range: '65-75% Match', count: 980 },
-          { range: '75-85% Match', count: 2950 },
-          { range: '85-92% Match', count: 6400 },
-          { range: '92-96% Match', count: 4900 },
-          { range: '96-98% Match', count: 2200 },
-          { range: '98%+ Match', count: 810 }
+          { range: '0-50% Match', count: 4256 },
+          { range: '50-65% Match', count: 835 },
+          { range: '65-75% Match', count: 83 },
+          { range: '75-85% Match', count: 1 },
+          { range: '85-92% Match', count: 0 },
+          { range: '92-96% Match', count: 0 },
+          { range: '96-98% Match', count: 0 },
+          { range: '98%+ Match', count: 0 }
         ],
     analogSites: isMars
       ? [
           {
             id: 'M-01',
-            earthLocation: 'Atacama Desert (Yungay Basin)',
-            earthCountry: 'Chile',
-            targetLocation: 'Jezero Crater',
+            earthLocation: 'Jemez Caldera C3 (r00384 c01408)',
+            earthCountry: 'New Mexico (USA)',
+            targetLocation: 'Jezero Crater CTX Mosaic 6m (Ares Vallis proxy)',
             targetBody: 'Mars',
-            overallMatchScore: 94.2,
-            mineralMatch: 96.5,
-            terrainMatch: 92.0,
-            climateProxyMatch: 94.1,
-            keyAnalogFactor: 'Hyper-aridity & perchlorate salt deposits',
-            status: 'High Match'
+            overallMatchScore: 97.33,
+            mineralMatch: 96.8,
+            terrainMatch: 98.1,
+            climateProxyMatch: 94.5,
+            keyAnalogFactor: 'High-silica volcanic tuff & hydrothermal alteration resembling Jezero crater rim',
+            status: 'Verified Match',
+            earthImageUrl: '/images/patches/01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00384_c01408.png',
+            googleMapsUrl: 'https://www.google.com/maps?q=35.793969,-106.779540&t=k',
+            earthCoordinates: '35.7940° N, 106.7795° W',
+            targetCoordinates: '18.6629° N, 77.2188° E',
+            targetMapsUrl: 'https://www.google.com/maps/space/mars/@18.662890,77.218770,20000m/data=!1m1!1e2'
           },
           {
             id: 'M-02',
-            earthLocation: 'Rio Tinto Basin',
-            earthCountry: 'Spain',
-            targetLocation: 'Meridiani Planum',
+            earthLocation: 'Jemez Volcanic Field C0 (r01280 c01152)',
+            earthCountry: 'New Mexico (USA)',
+            targetLocation: 'Jezero Crater CTX Mosaic 6m (Sedimentary delta)',
             targetBody: 'Mars',
-            overallMatchScore: 91.8,
-            mineralMatch: 95.2,
-            terrainMatch: 88.4,
-            climateProxyMatch: 91.8,
-            keyAnalogFactor: 'Acidic ferric sulfate & jarosite mineralization',
-            status: 'High Match'
-          },
-          {
-            id: 'M-03',
-            earthLocation: 'Devon Island (Haughton Crater)',
-            earthCountry: 'Canada',
-            targetLocation: 'Gale Crater',
-            targetBody: 'Mars',
-            overallMatchScore: 89.5,
-            mineralMatch: 86.2,
-            terrainMatch: 93.4,
-            climateProxyMatch: 88.9,
-            keyAnalogFactor: 'Impact cratering in polar desert permafrost',
-            status: 'High Match'
-          },
-          {
-            id: 'M-04',
-            earthLocation: 'McMurdo Dry Valleys',
-            earthCountry: 'Antarctica',
-            targetLocation: 'Valles Marineris Slopes',
-            targetBody: 'Mars',
-            overallMatchScore: 88.4,
-            mineralMatch: 84.1,
-            terrainMatch: 91.2,
-            climateProxyMatch: 89.9,
-            keyAnalogFactor: 'Cold-dry boundary & endolithic microorganism niches',
-            status: 'High Match'
+            overallMatchScore: 91.25,
+            mineralMatch: 90.4,
+            terrainMatch: 92.6,
+            climateProxyMatch: 89.8,
+            keyAnalogFactor: 'Basaltic ash fall & layered pyroclastic beds matching delta sediments',
+            status: 'Verified Match',
+            earthImageUrl: '/images/patches/02_tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r01280_c01152.png',
+            googleMapsUrl: 'https://www.google.com/maps?q=35.708584,-106.646929&t=k',
+            earthCoordinates: '35.7086° N, 106.6469° W',
+            targetCoordinates: '18.5463° N, 77.3743° E',
+            targetMapsUrl: 'https://www.google.com/maps/space/mars/@18.546280,77.374250,20000m/data=!1m1!1e2'
           }
         ]
       : [
           {
             id: 'L-01',
-            earthLocation: 'Haleakala Volcanic Complex',
-            earthCountry: 'Hawaii (USA)',
-            targetLocation: 'Shackleton Crater Base',
-            targetBody: 'Moon',
-            overallMatchScore: 95.8,
-            mineralMatch: 97.2,
-            terrainMatch: 94.8,
-            climateProxyMatch: 95.4,
-            keyAnalogFactor: 'Weathered basaltic ash & cinder field morphology',
-            status: 'High Match'
-          },
-          {
-            id: 'L-02',
-            earthLocation: 'Lanzarote Volcanic Geopark',
-            earthCountry: 'Spain',
-            targetLocation: 'Marius Hills Lava Tube',
-            targetBody: 'Moon',
-            overallMatchScore: 93.1,
-            mineralMatch: 95.5,
-            terrainMatch: 92.8,
-            climateProxyMatch: 91.0,
-            keyAnalogFactor: 'Pristine basaltic tubes for subterranean habitats',
-            status: 'High Match'
-          },
-          {
-            id: 'L-03',
-            earthLocation: 'Cinder Lake Crater Field',
-            earthCountry: 'Arizona (USA)',
-            targetLocation: 'Oceanus Procellarum',
-            targetBody: 'Moon',
-            overallMatchScore: 92.4,
-            mineralMatch: 94.0,
-            terrainMatch: 91.5,
-            climateProxyMatch: 91.7,
-            keyAnalogFactor: 'Artificially cratered lunar rover training terrain',
-            status: 'High Match'
-          },
-          {
-            id: 'L-04',
-            earthLocation: 'Kilbourne Hole Maar',
+            earthLocation: 'Jemez Caldera C3 (r00128 c01408)',
             earthCountry: 'New Mexico (USA)',
-            targetLocation: 'Fra Mauro Highlands',
+            targetLocation: 'LRO NAC Shaded Relief (00N 234E 150cm)',
             targetBody: 'Moon',
-            overallMatchScore: 88.7,
-            mineralMatch: 91.2,
-            terrainMatch: 87.4,
-            climateProxyMatch: 87.5,
-            keyAnalogFactor: 'Xenolith mantle ejecta & deep regolith analogs',
-            status: 'High Match'
+            overallMatchScore: 76.24,
+            mineralMatch: 74.1,
+            terrainMatch: 78.5,
+            climateProxyMatch: 68.2,
+            keyAnalogFactor: 'Impact-crater-like caldera rim with pulverized volcanic tuff regolith',
+            status: 'Verified Match',
+            earthImageUrl: '/images/patches/01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00128_c01408.png',
+            googleMapsUrl: 'https://www.google.com/maps?q=35.795123,-106.779540&t=k',
+            earthCoordinates: '35.7951° N, 106.7795° W',
+            targetCoordinates: '0.4278° S, 125.8415° W',
+            targetMapsUrl: 'https://www.google.com/maps/space/moon/@-0.427755,-125.841515,20000m/data=!1m1!1e2'
           }
         ],
     pipelineLogs: [
       `[00.01s] Planetary Analog Pipeline active: Earth with ${targetBody}`,
-      `[00.03s] Reading multispectral variables from repo CSV`,
-      `[00.05s] Spectral index & geomechanical cross-correlation complete`,
-      `[00.08s] High match confidence verified across target analog sites.`
+      `[00.03s] Registered active GeoTIFF input from backend/geo_samples/Tiff/`,
+      `[00.05s] Multivariate Bhattacharyya distance evaluated across 5,175 orthophoto patches.`,
+      `[00.08s] Pipeline results synced successfully.`
     ]
   };
 };

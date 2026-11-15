@@ -2,7 +2,9 @@
   "name": "chatgepecitos",
   "version": "1.0.0",
   "private": true,
-  "description": "Planetary Analog Explorer - Team chatgepecitos",
+  "description": "Planetary Analog Explorer - Multi-scale geospatial and multivariate texture matching platform for Moon and Mars terrestrial analogs (NASA Space Apps Challenge)",
+  "author": "Team chatgepecitos",
+  "license": "MIT",
   "scripts": {
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",

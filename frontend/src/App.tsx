@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { PlanetarySwitch } from './components/PlanetarySwitch';
-import { ControlPanel } from './components/ControlPanel';
 import { MetricsCards } from './components/MetricsCards';
 import { VariableCharts } from './components/VariableCharts';
 import { VariablesTable } from './components/VariablesTable';
-import { PipelineLogs } from './components/PipelineLogs';
-import { ChatAssistant } from './components/ChatAssistant';
 import type { AnalysisResult, TargetBody } from './types';
-import { loadPlanetaryResults, parsePlanetaryData } from './services/csvLoader';
+import { loadPlanetaryResults } from './services/csvLoader';
 import { getInitialMockResult } from './data/mockData';
 import { Target, Sparkles, Compass } from 'lucide-react';
 
@@ -36,7 +33,6 @@ export function App() {
     }
   }, []);
 
-  // Fetch when target body changes (Earth with Mars <-> Earth with Moon)
   useEffect(() => {
     fetchPlanetaryData(targetBody);
   }, [targetBody, fetchPlanetaryData]);
@@ -47,26 +43,33 @@ export function App() {
     }
   };
 
-  const handleCustomCSVUpload = (content: string, filename: string) => {
-    try {
-      const parsed = parsePlanetaryData(content, undefined, undefined, targetBody, filename);
-      setResult(parsed);
-      setLastUpdated(`Uploaded: ${filename}`);
-    } catch (err) {
-      console.error('Failed to parse custom CSV:', err);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="relative isolate min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[#070b14]/55" />
+        <div className="celestial-drift absolute -right-28 top-[35vh] aspect-square w-[min(78vw,440px)] sm:right-[5vw] sm:w-[min(42vw,480px)]">
+          <div className="celestial-turn celestial-sphere relative h-full w-full overflow-hidden rounded-full opacity-60 shadow-[0_0_90px_rgba(86,146,220,0.18)]">
+            <img
+              key={targetBody}
+              src={targetBody === 'Mars' ? '/images/mars-background.png' : '/images/moon-background.jpg'}
+              alt=""
+              className="h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/15 via-transparent to-[#02040b]/85" />
+            <div className="absolute inset-0 rounded-full shadow-[inset_-30px_-20px_60px_30px_rgba(0,0,0,0.8),inset_15px_10px_35px_rgba(255,255,255,0.18)]" />
+          </div>
+        </div>
+      </div>
+
       {/* Top Navigation */}
       <Header
         onRefreshCSV={() => fetchPlanetaryData(targetBody)}
         isLoading={isLoading}
         lastUpdated={lastUpdated}
+        filename={`outputs/${result.filename}`}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+      <main className="relative flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
         {/* Large Prominent Target Planet Switch (Earth with Mars vs Earth with Moon) */}
         <PlanetarySwitch
           selectedBody={targetBody}
@@ -108,7 +111,7 @@ export function App() {
           <div className="flex items-center gap-4 text-xs font-mono text-slate-400 border-t md:border-t-0 border-slate-800 pt-2 md:pt-0 w-full md:w-auto justify-between md:justify-end">
             <div className="flex items-center gap-1.5">
               <Target className="w-3.5 h-3.5 text-cyan-400" />
-              <span>{result.analogSites.length} Candidate Sites</span>
+              <span>Top {result.analogSites.length} of 5,175 Analyzed Tiles</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -134,35 +137,10 @@ export function App() {
           targetBody={targetBody}
           filename={result.filename}
         />
-
-        {/* 4. Controls, Logs & Chat Copilot */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 space-y-6">
-            <ControlPanel
-              onCustomCSVUpload={handleCustomCSVUpload}
-              isLoading={isLoading}
-              totalVariables={result.variables.length}
-              targetBody={targetBody}
-            />
-            <PipelineLogs
-              logs={result.pipelineLogs}
-              duration={result.durationSeconds}
-              filename={result.filename}
-            />
-          </div>
-
-          <div className="lg:col-span-7">
-            <ChatAssistant
-              variables={result.variables}
-              analogSites={result.analogSites}
-              targetBody={targetBody}
-            />
-          </div>
-        </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/80 py-5 text-center text-xs text-slate-500">
+      <footer className="relative z-10 border-t border-slate-800/80 bg-slate-950/80 py-5 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Team: <strong className="text-slate-300">chatgepecitos</strong> • NASA Space Apps Challenge</span>
           <span className="text-[11px] text-slate-600">&ldquo;Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars&rdquo;</span>
