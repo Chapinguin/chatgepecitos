@@ -1,3 +1,8 @@
+/**
+ * NOTE: This file/code was developed with the assistance of Artificial Intelligence (AI)
+ * as part of team chatgepecitos' entry for the NASA Space Apps Challenge.
+ */
+
 import React, { useState, useEffect } from 'react';
 import type { VariableResult, PlanetaryAnalogSite, TargetBody } from '../types';
 import {
@@ -131,6 +136,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
   // Reset zoom when switching active site
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     setZoomLevel(1);
     setFullscreenZoom(1);
   }, [selectedSiteModal]);

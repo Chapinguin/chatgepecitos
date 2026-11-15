@@ -1,3 +1,8 @@
+/**
+ * NOTE: This file/code was developed with the assistance of Artificial Intelligence (AI)
+ * as part of team chatgepecitos' entry for the NASA Space Apps Challenge.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { PlanetarySwitch } from './components/PlanetarySwitch';
@@ -34,6 +39,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     fetchPlanetaryData(targetBody);
   }, [targetBody, fetchPlanetaryData]);
 
@@ -141,9 +147,12 @@ export function App() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-slate-800/80 bg-slate-950/80 py-5 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-2.5">
           <span>Team: <strong className="text-slate-300">chatgepecitos</strong> • NASA Space Apps Challenge</span>
-          <span className="text-[11px] text-slate-600">&ldquo;Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars&rdquo;</span>
+          <span className="text-[11px] text-slate-400">
+            Imagery &amp; Data Credits: <strong className="text-slate-300">NASA / JPL-Caltech / USGS / ASU LROC / OpenPlanetary</strong> (Public Domain)
+          </span>
+          <span className="text-[11px] text-slate-500">&ldquo;Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars&rdquo;</span>
         </div>
       </footer>
     </div>
