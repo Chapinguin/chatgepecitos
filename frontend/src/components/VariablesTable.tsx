@@ -41,7 +41,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
   const exportCSV = () => {
     if (activeTab === 'sites') {
-      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Key Analog Factor', 'Status'];
+      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Climate Proxy Match', 'Key Analog Factor', 'Status'];
       const rows = filteredSites.map((s) => [
         `"${s.id}"`,
         `"${s.earthLocation}"`,
@@ -51,6 +51,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         `"${s.overallMatchScore}"`,
         `"${s.mineralMatch}"`,
         `"${s.terrainMatch}"`,
+        `"${s.climateProxyMatch ?? ''}"`,
         `"${s.keyAnalogFactor}"`,
         `"${s.status}"`,
       ]);
@@ -166,6 +167,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                 <th className="py-3 px-4">Overall Match</th>
                 <th className="py-3 px-4">Mineral Match</th>
                 <th className="py-3 px-4">Terrain Match</th>
+                <th className="py-3 px-4">Climate Proxy Match</th>
                 <th className="py-3 px-4">Key Analog Factor</th>
                 <th className="py-3 px-4">Fidelity Status</th>
               </tr>
@@ -194,8 +196,15 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       </span>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono text-slate-300">{site.mineralMatch}%</td>
-                  <td className="py-3.5 px-4 font-mono text-slate-300">{site.terrainMatch}%</td>
+                  <td className="py-3.5 px-4 font-mono text-slate-300">
+                    {site.mineralMatch === null ? '—' : `${site.mineralMatch}%`}
+                  </td>
+                  <td className="py-3.5 px-4 font-mono text-slate-300">
+                    {site.terrainMatch === null ? '—' : `${site.terrainMatch}%`}
+                  </td>
+                  <td className="py-3.5 px-4 font-mono text-slate-300">
+                    {site.climateProxyMatch === null ? '—' : `${site.climateProxyMatch}%`}
+                  </td>
                   <td className="py-3.5 px-4 text-slate-400 text-[11px] max-w-xs truncate" title={site.keyAnalogFactor}>
                     {site.keyAnalogFactor}
                   </td>
