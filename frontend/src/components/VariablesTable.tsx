@@ -13,7 +13,8 @@ import {
   ChevronRight,
   ZoomIn,
   ZoomOut,
-  Maximize2
+  Maximize2,
+  ExternalLink
 } from 'lucide-react';
 
 interface VariablesTableProps {
@@ -273,7 +274,22 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         <span className="text-white text-sm font-bold block group-hover:text-cyan-300 transition leading-snug">
                           {site.earthLocation}
                         </span>
-                        <span className="text-[10px] font-mono text-emerald-400/90">Terrestrial Reference</span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] font-mono text-emerald-400/90">Terrestrial Reference</span>
+                          {site.googleMapsUrl && (
+                            <a
+                              href={site.googleMapsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-0.5 hover:underline"
+                              title="Open exact coordinates in Google Maps"
+                            >
+                              <ExternalLink className="w-2.5 h-2.5" />
+                              <span>Maps</span>
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -626,7 +642,23 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
                     {/* Earth Card Footer */}
                     <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-                      <span className="text-[11px] text-slate-400">Terrestrial Morphology Context</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400">
+                          {selectedSiteModal.earthCoordinates || 'Terrestrial Morphology Context'}
+                        </span>
+                        {selectedSiteModal.googleMapsUrl && (
+                          <a
+                            href={selectedSiteModal.googleMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 hover:underline"
+                            title="Open exact coordinates in Google Maps"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Maps</span>
+                          </a>
+                        )}
+                      </div>
                       <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40 font-semibold">
                         Earth Surface
                       </span>
