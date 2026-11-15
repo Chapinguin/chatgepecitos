@@ -1,3 +1,8 @@
+/**
+ * NOTE: This file/code was developed with the assistance of Artificial Intelligence (AI)
+ * as part of team chatgepecitos' entry for the NASA Space Apps Challenge.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { PlanetarySwitch } from './components/PlanetarySwitch';

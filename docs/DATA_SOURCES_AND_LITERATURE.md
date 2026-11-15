@@ -93,3 +93,4 @@ $$\text{Score} = BC(p, q) \times 100 = \exp\left( -D_B(p, q) \right) \times 100$
 
 * **OpenPlanetaryMap (OPM):** Open-source cartographic tile services for Mars (`opm-mars-basemap-v0-2`) and the Moon (`opm-moon-basemap-v0-1`) licensed under CC-BY / OpenStreetMap contributors.
 * **Google Maps & Google Maps Space 3D:** Interactive browser embed & direct 3D celestial celestial navigation (`google.com/maps/space/mars` and `google.com/maps/space/moon`).
+
