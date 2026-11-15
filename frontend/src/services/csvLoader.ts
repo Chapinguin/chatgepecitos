@@ -1,6 +1,15 @@
 import Papa from 'papaparse';
 import type { VariableResult, LayerMetric, AnalysisResult, HistogramBin, TargetBody, PlanetaryAnalogSite } from '../types';
 
+const parseOptionalNumber = (value: string | undefined): number | null => {
+  if (!value?.trim()) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 export const loadPlanetaryResults = async (targetBody: TargetBody): Promise<AnalysisResult> => {
   const isMars = targetBody === 'Mars';
   const varFileName = isMars ? 'earth_with_mars_variables.csv' : 'earth_with_moon_variables.csv';
@@ -110,9 +119,9 @@ export const parsePlanetaryData = (
         targetLocation: row.targetLocation || `${targetBody} Region`,
         targetBody,
         overallMatchScore: Number(row.overallMatchScore || 0),
-        mineralMatch: Number(row.mineralMatch || 0),
-        terrainMatch: Number(row.terrainMatch || 0),
-        climateProxyMatch: Number(row.climateProxyMatch || 0),
+        mineralMatch: parseOptionalNumber(row.mineralMatch),
+        terrainMatch: parseOptionalNumber(row.terrainMatch),
+        climateProxyMatch: parseOptionalNumber(row.climateProxyMatch),
         keyAnalogFactor: row.keyAnalogFactor || 'Geological composition proxy',
         status: (row.status || 'Candidate') as PlanetaryAnalogSite['status'],
       }));
@@ -152,7 +161,7 @@ export const parsePlanetaryData = (
     processedAt: new Date().toISOString(),
     durationSeconds: 0.12,
     status: 'completed',
-    summary: `Planetary Analog Engine initialized for Earth with ${targetBody}. Primary analog fidelity: ${primaryScore}%. ${analogSites.length} verified terrestrial candidate sites registered.`,
+    summary: `Planetary Analog Engine initialized for Earth with ${targetBody}. Primary analog fidelity: ${primaryScore}%. ${analogSites.length} backend-scored terrestrial candidate sites registered.`,
     variables,
     layerMetrics,
     histogram,
@@ -162,7 +171,7 @@ export const parsePlanetaryData = (
       `[00.03s] Active multispectral proxy dataset: outputs/${sourceName}`,
       `[00.06s] Parsed ${variables.length} parameters from repository CSV`,
       `[00.09s] Evaluated ${layerMetrics.length} spectral bands`,
-      `[00.12s] Strict zero baseline verified. Ready for pipeline sync.`
+      `[00.12s] Loaded ${analogSites.length} backend-scored terrestrial candidate sites`
     ]
   };
 };
