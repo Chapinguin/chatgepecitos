@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "description": "Ejemplos sinteticos para pruebas; NO son mediciones cientificas ni referencias oficiales",
+  "regions": [
+    {"id":"earth_demo_001","name":"Earth demonstration site","body":"earth","coordinates":{"lat":35.0,"lon":-106.0},"variables":{"temperature_c":{"value":20,"unit":"degC","kind":"synthetic","source":{}},"albedo":{"value":0.25,"unit":"fraction","kind":"synthetic","source":{}}}},
+    {"id":"mars_demo_001","name":"Mars demonstration reference","body":"mars","coordinates":{"lat":18.0,"lon":77.0},"variables":{"temperature_c":{"value":-60,"unit":"degC","kind":"synthetic","source":{}},"albedo":{"value":0.2,"unit":"fraction","kind":"synthetic","source":{}}}},
+    {"id":"moon_demo_001","name":"Moon demonstration reference","body":"moon","coordinates":{"lat":0.0,"lon":23.0},"variables":{"temperature_c":{"value":-20,"unit":"degC","kind":"synthetic","source":{}},"albedo":{"value":0.12,"unit":"fraction","kind":"synthetic","source":{}}}}
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "note": "Rangos ilustrativos; deben sustituirse por criterios cientificos documentados antes del uso en produccion",
+  "temperature_c": {"min": -150, "max": 60, "unit": "degC"},
+  "albedo": {"min": 0, "max": 1, "unit": "fraction"}
+}
