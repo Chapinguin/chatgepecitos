@@ -250,16 +250,23 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         </div>
       </div>
 
-      {/* View 1: Analog Sites Table with Compact 4-Column Layout (Zero Horizontal Scroll) */}
+      {/* View 1: Analog Sites Table with Responsive Layout (Sidescroll on Mobile, Full-width on Laptop) */}
       {activeTab === 'sites' && (
-        <div className="rounded-xl border border-slate-800/80 overflow-hidden shadow-lg bg-slate-900/60">
-          <table className="w-full text-left text-xs table-fixed">
+        <div className="rounded-xl border border-slate-800/80 overflow-x-auto shadow-lg bg-slate-900/60">
+          <div className="md:hidden flex items-center justify-between text-[10px] text-slate-400 font-mono px-3.5 py-1.5 bg-slate-950/70 border-b border-slate-800/60">
+            <span className="flex items-center gap-1.5 text-cyan-400">
+              <ArrowRightLeft className="w-3 h-3 animate-pulse" />
+              <span>Swipe horizontally to view all metrics & actions</span>
+            </span>
+            <span className="text-[9px] text-slate-500">4 Columns</span>
+          </div>
+          <table className="w-full text-left text-xs min-w-[760px]">
             <thead className="bg-slate-950/90 text-slate-400 uppercase font-mono tracking-wider border-b border-slate-800 text-[10px]">
               <tr>
-                <th className="py-3 px-4 w-[33%]">Earth Candidate Site</th>
-                <th className="py-3 px-4 w-[33%]">Target {targetBody} & Geological Factor</th>
-                <th className="py-3 px-4 w-[21%]">Analog Match Index</th>
-                <th className="py-3 px-4 w-[13%] text-center">Action</th>
+                <th className="py-3 px-4 min-w-[240px] md:w-[32%]">Earth Candidate Site</th>
+                <th className="py-3 px-4 min-w-[250px] md:w-[34%]">Target {targetBody} & Geological Factor</th>
+                <th className="py-3 px-4 min-w-[170px] md:w-[21%]">Analog Match Index</th>
+                <th className="py-3 px-4 min-w-[110px] md:w-[13%] text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
@@ -418,7 +425,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                   </td>
 
                   {/* Column 4: Comparison Action & Status */}
-                  <td className="py-3.5 px-4 text-center align-top">
+                  <td className="py-3.5 px-4 text-center align-top whitespace-nowrap min-w-[120px]">
                     <div className="flex flex-col items-center justify-center gap-1.5 pt-0.5">
                       <button
                         onClick={(e) => {
