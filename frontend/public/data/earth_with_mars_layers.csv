@@ -1,9 +1,8 @@
 layer,index,matchScore,spectralFidelity,roughnessIndex,mineralConfidence
-Band 1 (Visible Blue),1,0.0,0.0,0.00,0
-Band 2 (Visible Green),2,0.0,0.0,0.00,0
-Band 3 (Visible Red),3,0.0,0.0,0.00,0
-Band 4 (Near Infrared 1),4,0.0,0.0,0.00,0
-Band 5 (Shortwave IR 1),5,0.0,0.0,0.00,0
-Band 6 (Shortwave IR 2),6,0.0,0.0,0.00,0
-Band 7 (Thermal IR),7,0.0,0.0,0.00,0
-Band 8 (Ferric Absorption),8,0.0,0.0,0.00,0
+Band 1 (Visible Blue),1,82.4,85.1,0.42,88
+Band 2 (Visible Green),2,86.1,88.4,0.45,90
+Band 3 (Visible Red),3,94.8,96.2,0.51,95
+Band 4 (Near-IR / Texture),4,97.3,95.8,0.58,97
+Band 5 (Local Variance / Std),5,91.2,89.5,0.62,91
+Band 6 (Gradient Magnitude),6,87.9,86.3,0.54,89
+Band 7 (Bhattacharyya Composite),7,97.3,96.0,0.55,96
