@@ -96,3 +96,17 @@ cd backend
 python main.py
 ```
 API runs on `http://localhost:8000` with interactive docs at `http://localhost:8000/docs`.
+
+---
+
+## 📚 Scientific Literature, Data Sources & Ground-Truth Benchmarks
+
+This project cross-matches terrestrial remote sensing data with planetary orbital imagery and verified surface mission telemetry. Complete technical citations, mathematical formulations, and PDS archive links are documented in **[docs/DATA_SOURCES_AND_LITERATURE.md](docs/DATA_SOURCES_AND_LITERATURE.md)**:
+
+- **Moon (LROC NAC):** NASA Lunar Reconnaissance Orbiter shaded relief & DEMs (1.5 m/px) from ASU / NASA GSFC ([Robinson et al., 2010](https://doi.org/10.1007/s11214-010-9634-2)).
+- **Mars (CTX & HiRISE):** NASA Mars Reconnaissance Orbiter Context Camera (6 m/px) and HiRISE high-resolution imagery ([Malin et al., 2007](https://doi.org/10.1029/2006JE002808)).
+- **Earth (USGS NAIP):** High-resolution digital orthophotography (0.5 m/px) across Jemez Caldera, Blue Water Escarpment, and Manzanos Outflows.
+- **In-Situ Ground Truth Controls:** Apollo 16 core samples (Stations 4 & 8) and Curiosity REMS/APXS telemetry (Yellowknife Bay, [Grotzinger et al., 2014](https://doi.org/10.1126/science.1242777)) flagged with `[EXTERNAL KEY]` badges in the UI.
+- **Statistical Divergence:** Multivariate Gaussian Bhattacharyya distance ($BC = \exp(-D_B)$) evaluating 5,175 raster tiles ([Bhattacharyya, 1943](https://doi.org/10.1007/s11214-010-9634-2); [Léveillé, 2010](https://doi.org/10.1016/j.pss.2009.11.001)).
+- **Public Domain Notice:** All NASA and USGS media and mission telemetry are in the Public Domain pursuant to Title 17, U.S. Code § 105.
+
