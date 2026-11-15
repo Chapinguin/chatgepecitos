@@ -823,15 +823,21 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                   </div>
                   <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Mineral Match</span>
-                    <span className="font-bold text-cyan-400 text-xs sm:text-sm">{selectedSiteModal.mineralMatch}%</span>
+                    <span className="font-bold text-cyan-400 text-xs sm:text-sm">
+                      {selectedSiteModal.mineralMatch !== null ? `${selectedSiteModal.mineralMatch}%` : '—'}
+                    </span>
                   </div>
                   <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Terrain Match</span>
-                    <span className="font-bold text-amber-400 text-xs sm:text-sm">{selectedSiteModal.terrainMatch}%</span>
+                    <span className="font-bold text-amber-400 text-xs sm:text-sm">
+                      {selectedSiteModal.terrainMatch !== null ? `${selectedSiteModal.terrainMatch}%` : '—'}
+                    </span>
                   </div>
                   <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-500 uppercase block">Climate Proxy</span>
-                    <span className="font-bold text-emerald-400 text-xs sm:text-sm">{selectedSiteModal.climateProxyMatch}%</span>
+                    <span className="font-bold text-emerald-400 text-xs sm:text-sm">
+                      {selectedSiteModal.climateProxyMatch !== null ? `${selectedSiteModal.climateProxyMatch}%` : '—'}
+                    </span>
                   </div>
                 </div>
               </div>
