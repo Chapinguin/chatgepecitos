@@ -153,6 +153,8 @@ export const parsePlanetaryData = (
         status: (row.status || 'Candidate') as PlanetaryAnalogSite['status'],
         earthImageUrl: resolveRankImage(row.earthImageUrl, index, 'earth', targetBody),
         targetImageUrl: resolveRankImage(row.targetImageUrl, index, 'target', targetBody),
+        googleMapsUrl: row.googleMapsUrl?.trim() || undefined,
+        earthCoordinates: row.earthCoordinates?.trim() || undefined,
       }));
   }
 

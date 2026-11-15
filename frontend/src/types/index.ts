@@ -39,6 +39,9 @@ export interface PlanetaryAnalogSite {
   status: 'Verified Match' | 'High Match' | 'Moderate Match' | 'Candidate';
   earthImageUrl?: string;
   targetImageUrl?: string;
+  googleMapsUrl?: string;
+  earthCoordinates?: string;
+  targetCoordinates?: string;
 }
 
 export interface AnalysisResult {

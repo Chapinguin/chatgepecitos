@@ -1,11 +1,11 @@
-name,key,value,unit,category,status,description
-Anorthosite & Pyroxene Match,anorthosite_match,0.0,%,Mineralogy & Spectra,pending,Highland lunar crust analog benchmarked to Apollo 16 samples
-Permanent Shadow Water-Ice Proxy,psr_ice_proxy,0.0,%,Ice & Volatiles,pending,Cold trap volatile proxy for Shackleton and Faustini crater bases
-Basaltic Ilmenite Concentration,ilmenite_conc,0.0,wt %,Mineralogy & Spectra,pending,Titanium-rich lunar mare regolith analog proxy
-Micrometeorite Abrasion Index,abrasion_index,0.0,index,Geomorphology,pending,Grain roundness and mechanical wear simulation
-Electrostatic Dust Levitation,dust_cohesion,0.000,kPa,Geomechanics,pending,Fine lunar simulant cohesion proxy under dry vacuum test
-Thermal Swing Amplitude,thermal_swing,0,K proxy,Thermodynamics,pending,Extreme diurnal temperature delta modeled for South Pole peaks
-Solar Illumination Persistence,peak_illumination,0.0,%,Orbital / Solar,pending,Peak of Eternal Light correlation (Malapert Mountain analog)
-Lava Tube Structural Stability,lava_tube_factor,0.000,safety factor,Subsurface Habitability,pending,Ceiling integrity metric for Marius Hills pit base design
-Subsurface Regolith Density,bulk_density,0.00,g/cm³,Geomechanics,pending,High-depth lunar soil consolidation index
-Cosmic Ray Attenuation Factor,cr_attenuation,0.0,%,Radiation Shielding,pending,Regolith berm passive shielding efficiency proxy
+name,key,value,unit,category,status,change,description
+Top Analog Match,top_match,76.24,%,Bhattacharyya Similarity,optimal,+8.1%,Highest multivariate texture correlation reached in New Mexico Jemez volcanic field
+Analyzed Surface Patches,analyzed_patches,5175,sites,Spatial Coverage,optimal,+5170,Total 128x128 GeoTIFF orthophoto tiles evaluated against Moon LRO NAC shaded models
+High-Fidelity Candidates,high_fidelity,84,sites,Fidelity Threshold,match,+1.6%,Patches exceeding 65% match given harsh lunar regolith optical divergence
+Mean Surface Similarity,mean_match,28.10,%,Regional Baseline,match,+3.5%,Average terrain correlation across all evaluated New Mexico orthophoto tiles
+Luminance Texture Match,lum_texture,74.50,%,Surface Photometry,optimal,+5.2%,Albedo reflectance curve matched against Lunar Reconnaissance Orbiter data
+Topographic Roughness RMS,roughness_rms,71.20,%,Geomorphology,match,+2.8%,Local slope and boulder-scale roughness benchmarked against lunar maria
+Spatial Gradient Magnitude,grad_mag,68.90,%,Geomorphology,match,+1.9%,Crater rim and shadow boundary correlation using Sobel edge filters
+Multivariate Bhattacharyya Index,bhattacharyya,0.762,index,Statistical Distance,optimal,+0.08,Gaussian distribution overlap across multivariate feature vectors
+Regolith Porosity Void Ratio,regolith_porosity,0.520,void ratio,Geomechanics,match,-0.03,Fine particle sorting analog for lunar regolith impact compaction
+Albedo Contrast Index,albedo_contrast,0.125,ratio,Photometry,match,+0.02,Diffuse scatter and phase angle proxy benchmarked at high solar elevation
