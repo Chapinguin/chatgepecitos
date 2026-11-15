@@ -36,7 +36,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
   const [activeModalView, setActiveModalView] = useState<'both' | 'earth' | 'target'>('both');
-  const [earthViewMode, setEarthViewMode] = useState<'crop' | 'satellite'>('crop');
+  const [earthViewMode, setEarthViewMode] = useState<'crop' | 'satellite'>('satellite');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [fullscreenImage, setFullscreenImage] = useState<{
     url?: string;
@@ -672,6 +672,10 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (earthViewMode === 'satellite' && selectedSiteModal.googleMapsUrl) {
+                              window.open(selectedSiteModal.googleMapsUrl, '_blank', 'noopener,noreferrer');
+                              return;
+                            }
                             setFullscreenZoom(1);
                             setFullscreenImage({
                               url: getSiteImage(selectedSiteModal, 'earth'),
@@ -684,7 +688,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                             });
                           }}
                           className="px-2 py-0.5 rounded bg-slate-800 hover:bg-emerald-950 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-600/50 transition flex items-center gap-1 text-[10px] font-mono cursor-pointer"
-                          title="Open Fullscreen View"
+                          title={earthViewMode === 'satellite' ? 'Open Full Satellite Terrain in Google Maps' : 'Open Fullscreen View'}
                         >
                           <Maximize2 className="w-3 h-3 text-emerald-400" />
                           <span className="hidden sm:inline">Fullscreen</span>
@@ -728,26 +732,6 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md pointer-events-none">
                           GLORTHO • 15 cm/px
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFullscreenZoom(1);
-                            setFullscreenImage({
-                              url: getSiteImage(selectedSiteModal, 'earth'),
-                              title: `Earth: ${selectedSiteModal.earthLocation}`,
-                              subtitle: `${selectedSiteModal.earthCountry} • GLORTHO Terrestrial Sensor`,
-                              badge: 'Earth Surface',
-                              body: 'earth',
-                              fallbackLabel: 'EARTH CROP',
-                              location: selectedSiteModal.earthLocation,
-                            });
-                          }}
-                          className="absolute top-2 right-2 px-2 py-1 rounded bg-black/75 hover:bg-emerald-950/90 text-slate-300 hover:text-emerald-200 border border-slate-700 hover:border-emerald-500/60 shadow-lg backdrop-blur-md transition flex items-center gap-1.5 text-[10px] font-mono cursor-pointer"
-                          title="View Fullscreen"
-                        >
-                          <Maximize2 className="w-3 h-3 text-emerald-400" />
-                          <span>Fullscreen</span>
-                        </button>
                       </div>
                     )}
 
@@ -865,30 +849,6 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       >
                         {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFullscreenZoom(1);
-                          setFullscreenImage({
-                            url: getSiteImage(selectedSiteModal, 'target'),
-                            title: `${targetBody}: ${selectedSiteModal.targetLocation}`,
-                            subtitle: `${targetBody === 'Mars' ? 'HiRISE 25 cm/px' : 'LRO NAC 150 cm/px'} • Orbital Ground Truth`,
-                            badge: `${targetBody} Surface`,
-                            body: targetBody === 'Mars' ? 'mars' : 'moon',
-                            fallbackLabel: targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
-                            location: selectedSiteModal.targetLocation,
-                          });
-                        }}
-                        className={`absolute top-2 right-2 px-2 py-1 rounded bg-black/75 shadow-lg backdrop-blur-md transition flex items-center gap-1.5 text-[10px] font-mono cursor-pointer border ${
-                          targetBody === 'Mars'
-                            ? 'hover:bg-orange-950/90 text-slate-300 hover:text-orange-200 border-slate-700 hover:border-orange-500/60'
-                            : 'hover:bg-cyan-950/90 text-slate-300 hover:text-cyan-200 border-slate-700 hover:border-cyan-500/60'
-                        }`}
-                        title="View Fullscreen"
-                      >
-                        <Maximize2 className={`w-3 h-3 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
-                        <span>Fullscreen</span>
-                      </button>
                     </div>
 
                     {/* Target Card Footer */}
