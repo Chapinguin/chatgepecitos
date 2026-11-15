@@ -8,9 +8,8 @@ An interactive geospatial and multispectral intelligence platform designed to id
 
 ---
 
-## 👥 Team `chatgepecitos`
+## Team `chatgepecitos`
 
-Alphabetical roster:
 - **Daniela Tovar** — Facultad de Ciencias Físico Matemáticas, UAdeC
 - **Joshua Olivo** — Facultad de Ciencias Físico Matemáticas, UAdeC
 - **Roberto Chavez** — Facultad de Ciencias Físico Matemáticas, UAdeC
