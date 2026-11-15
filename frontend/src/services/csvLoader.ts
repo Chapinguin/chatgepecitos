@@ -19,24 +19,22 @@ const resolveRankImage = (
   index: number,
   type: 'earth' | 'target',
   targetBody: TargetBody
-): string => {
+): string | undefined => {
   if (explicitUrl && explicitUrl.trim()) {
     return explicitUrl.trim();
   }
 
-  const isMars = targetBody.toLowerCase() === 'mars';
-  const rank = index + 1;
-  const globalRank = isMars ? rank : rank + 5;
-  const rankStr = String(globalRank).padStart(2, '0');
-  const bodyRankStr = String(rank).padStart(2, '0');
-
   if (type === 'earth') {
+    const isMars = targetBody.toLowerCase() === 'mars';
+    const rank = index + 1;
+    const globalRank = isMars ? rank : rank + 5;
+    const rankStr = String(globalRank).padStart(2, '0');
     return `/images/patches/top_${rankStr}_earth.png`;
   }
 
-  return isMars
-    ? `/images/patches/top_${bodyRankStr}_mars.png`
-    : `/images/patches/top_${bodyRankStr}_moon.png`;
+  // Target planetary body: if no explicit crop is provided in CSV,
+  // return undefined so UI renders the scientific sensor reticle fallback.
+  return undefined;
 };
 
 export const loadPlanetaryResults = async (targetBody: TargetBody): Promise<AnalysisResult> => {

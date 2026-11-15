@@ -586,7 +586,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       title="Click to toggle 2x optical zoom"
                     >
                       <img
-                        src={getSiteImage(selectedSiteModal, 'earth')}
+                        src={getSiteImage(selectedSiteModal, 'earth') || getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation)}
                         alt={selectedSiteModal.earthLocation}
                         className="w-full h-full object-cover transition-transform duration-300 ease-out"
                         style={{
@@ -689,7 +689,14 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       title="Click to toggle 2x optical zoom"
                     >
                       <img
-                        src={getSiteImage(selectedSiteModal, 'target')}
+                        src={
+                          getSiteImage(selectedSiteModal, 'target') ||
+                          getSvgFallback(
+                            targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                            targetBody === 'Mars' ? 'mars' : 'moon',
+                            selectedSiteModal.targetLocation
+                          )
+                        }
                         alt={selectedSiteModal.targetLocation}
                         className="w-full h-full object-cover transition-transform duration-300 ease-out"
                         style={{
