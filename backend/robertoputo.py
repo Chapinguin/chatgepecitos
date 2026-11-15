@@ -14,17 +14,34 @@ from rasterio.transform import xy as px_to_geo
 from scipy.ndimage import uniform_filter
 from skimage.filters import sobel
 from collections import Counter
+from pathlib import Path
 
 
 # ============================================================
 # Configuración
 # ============================================================
-SCENES = {
-    "tierra": r"D:\hackaton_nasa\GLORTHO_NM_26June2018_Jimez2_c3r13_ortho.tif",
-    "luna":   r"D:\hackaton_nasa\LRO_NAC_Shade_53N354E_150cmp.tif",
-    "marte":  r"D:\hackaton_nasa\sojourner_hirise_mosaic.tif",
+BASE = Path(r"C:\Users\super\chatgepecitos\backend\Roberto\Tiff\Tiff")
+
+Carpetas = {
+    "tierra": BASE / "Tierra",
+    "luna":   BASE / "Luna",
+    "marte":  BASE / "Marte",
 }
 
+# ============================================================
+# Cargar escenas (todas las imágenes .tif de cada carpeta)
+# ============================================================
+
+def find_scenes(carpetas: dict) -> list[tuple[str, Path]]:
+    scenes = []
+    for cuerpo, carpeta in carpetas.items():
+        if not carpeta.exists():
+            print(f" carpeta no encontrada: {carpeta}")
+            continue
+        for p in sorted(carpeta.iterdir()):
+            if p.suffix.lower() in (".tif", ".tiff"):
+                scenes.append((cuerpo, p))
+    return scenes
 
 # ============================================================
 # Tipos (contrato del equipo, no se toca al añadir datos)
@@ -72,6 +89,9 @@ def bhattacharyya(a: PatchDistribution, b: PatchDistribution, eps: float = 1e-6)
     S2 = b.cov + eps * np.eye(D)
     S  = 0.5 * (S1 + S2)
     d  = a.mean - b.mean
+
+    assert np.isfinite(S).all(), f"S no finita: {a.patch_id} vs {b.patch_id}"
+
     Sinv = np.linalg.pinv(S)
     term1 = 0.125 * float(d @ Sinv @ d)
     _, ld1 = np.linalg.slogdet(S1)
@@ -128,15 +148,19 @@ def load_scene(path: str, max_side: int = 2048):
             resampling=Resampling.average,
         ).astype(np.float32)
 
-        if src.nodata is not None:
+        finite = np.isfinite(img).all(axis=0)
+
+        if src.nodata is not None and not np.isnan(src.nodata):
             raw = src.read(
                 indexes=[1],
                 out_shape=(1, out_h, out_w),
                 resampling=Resampling.nearest,
             )
-            mask = raw[0] != src.nodata
+            mask = (raw[0] != src.nodata) & finite
         else:
-            mask = np.any(img != 0, axis=0)
+            mask = np.any(img != 0, axis=0) & finite
+
+        img = np.nan_to_num(img, nan=0.0, posinf=0.0, neginf=0.0)
 
         return np.moveaxis(img, 0, -1), mask, src.transform, src.crs, factor
 
@@ -166,8 +190,12 @@ def make_patches(img, mask, patch_px, stride_px, source, transform) -> list[Patc
 
 
 def featurize(patch: Patch, extractor) -> PatchDistribution | None:
-    F = extractor.per_pixel(patch.as_3d, patch.mask_2d)         # (N_valid, D)
-    if F.shape[0] < 2:
+    F = extractor.per_pixel(patch.as_3d, patch.mask_2d)
+    if F.shape[0] < 2 or not np.isfinite(F).all():
+        return None
+    mu  = F.mean(axis=0)
+    cov = np.atleast_2d(np.cov(F.T))
+    if not (np.isfinite(mu).all() and np.isfinite(cov).all()):
         return None
     mu  = F.mean(axis=0)
     cov = np.atleast_2d(np.cov(F.T))                            # (D, D)
@@ -194,27 +222,26 @@ def main():
     extractor = LuminanceTextureExtractor()
     print(f"Extractor: {extractor.__class__.__name__}, D={len(extractor.feature_names)}")
 
-    dists_by_source = {}
-    imgs_by_source  = {}
-    meta_by_source  = {}
+    dists_by_source = {cuerpo: [] for cuerpo in Carpetas}   # agrupado por cuerpo
+    imgs_by_scene   = {}                                    # solo para los crops de la Tierra
+    meta_by_scene   = {}
 
-    for name, path in SCENES.items():
-        print(f"\n[{name}] {path}")
-        if not Path(path).exists():
-            print(f"  ⚠️  no encontrado, se omite")
-            continue
-        img, mask, transform, crs, factor = load_scene(path, args.max_side)
-        print(f"  shape={img.shape}  factor={factor}x  crs={crs.to_string() if crs else 'None'}")
-        raw = make_patches(img, mask, args.patch, stride, name, transform)
-        dists = []
-        for p in raw:
-            d = featurize(p, extractor)
-            if d is not None:
-                dists.append(d)
+    for cuerpo, path in find_scenes(Carpetas):
+        scene_id = f"{cuerpo}__{path.stem}"                 # único por imagen
+        print(f"\n[{scene_id}] {path}")
+
+        img, mask, transform, crs, factor = load_scene(str(path), args.max_side)
+        print(f"  shape={img.shape}  dtype original→float32  factor={factor}x  "
+              f"crs={crs.to_string() if crs else 'None'}")
+
+        raw = make_patches(img, mask, args.patch, stride, scene_id, transform)
+        dists = [d for p in raw if (d := featurize(p, extractor)) is not None]
         print(f"  parches crudos={len(raw)}  válidos={len(dists)}")
-        dists_by_source[name] = dists
-        imgs_by_source[name]  = img
-        meta_by_source[name]  = {"crs": str(crs) if crs else None, "factor": factor}
+
+        dists_by_source[cuerpo].extend(dists)
+        meta_by_scene[scene_id] = {"crs": str(crs) if crs else None, "factor": factor}
+        if cuerpo == "tierra":                              # solo la Tierra necesita guardar img
+            imgs_by_scene[scene_id] = img
 
     tierra = dists_by_source.get("tierra", [])
     lunas  = dists_by_source.get("luna", [])
@@ -254,7 +281,7 @@ def main():
             "patch_px":      args.patch,
             "stride_px":     stride,
             "max_side":      args.max_side,
-            "scene_meta":    meta_by_source,
+            "scene_meta":    meta_by_scene,
         },
         "features": [
             {
@@ -276,7 +303,7 @@ def main():
     print(f"→ {out / 'analogues.geojson'}")
 
     # ---- Salida 2: top-10 crops PNG para el demo --------------------------
-    _save_top_crops(results[:10], imgs_by_source, out / "top10")
+    _save_top_crops(results[:10], imgs_by_scene, out / "top10")
     print(f"→ {out / 'top10'}/")
 
     # ---- Resumen en consola ----------------------------------------------
@@ -295,15 +322,15 @@ def main():
     return {"results": results, "dists_by_source": dists_by_source}
 
 
-def _save_top_crops(results, imgs_by_source, out_dir: Path):
+def _save_top_crops(results, imgs_by_scene, out_dir: Path):
     """Guarda un PNG por parche en el top-10 (útil para slides)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     out_dir.mkdir(parents=True, exist_ok=True)
     for i, r in enumerate(results, 1):
-        src_name = r["patch_id"].split("_")[0]
-        img = imgs_by_source.get(src_name)
+        scene_id = r["patch_id"].split("_")[0]
+        img = imgs_by_scene.get(scene_id)
         if img is None:
             continue
         r0, c0, r1, c1 = r["bbox_px"]
@@ -315,9 +342,6 @@ def _save_top_crops(results, imgs_by_source, out_dir: Path):
         ax.axis("off")
         fig.savefig(out_dir / f"{i:02d}_{r['patch_id']}.png", bbox_inches="tight", dpi=80)
         plt.close(fig)
-
-    
-
 
 if __name__ == "__main__":
     _out = main()
