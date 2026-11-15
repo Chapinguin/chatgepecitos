@@ -155,7 +155,9 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
             status: 'Verified Match',
             earthImageUrl: '/images/patches/01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00384_c01408.png',
             googleMapsUrl: 'https://www.google.com/maps?q=35.793969,-106.779540&t=k',
-            earthCoordinates: '35.7940° N, 106.7795° W'
+            earthCoordinates: '35.7940° N, 106.7795° W',
+            targetCoordinates: '18.6629° N, 77.2188° E',
+            targetMapsUrl: 'https://www.google.com/maps/space/mars/@18.662890,77.218770,20000m/data=!1m1!1e2'
           },
           {
             id: 'M-02',
@@ -171,7 +173,9 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
             status: 'Verified Match',
             earthImageUrl: '/images/patches/02_tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r01280_c01152.png',
             googleMapsUrl: 'https://www.google.com/maps?q=35.708584,-106.646929&t=k',
-            earthCoordinates: '35.7086° N, 106.6469° W'
+            earthCoordinates: '35.7086° N, 106.6469° W',
+            targetCoordinates: '18.5463° N, 77.3743° E',
+            targetMapsUrl: 'https://www.google.com/maps/space/mars/@18.546280,77.374250,20000m/data=!1m1!1e2'
           }
         ]
       : [
@@ -189,7 +193,9 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
             status: 'Verified Match',
             earthImageUrl: '/images/patches/01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00128_c01408.png',
             googleMapsUrl: 'https://www.google.com/maps?q=35.795123,-106.779540&t=k',
-            earthCoordinates: '35.7951° N, 106.7795° W'
+            earthCoordinates: '35.7951° N, 106.7795° W',
+            targetCoordinates: '0.4278° S, 125.8415° W',
+            targetMapsUrl: 'https://www.google.com/maps/space/moon/@-0.427755,-125.841515,20000m/data=!1m1!1e2'
           }
         ],
     pipelineLogs: [

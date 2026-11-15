@@ -37,6 +37,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
   const [activeModalView, setActiveModalView] = useState<'both' | 'earth' | 'target'>('both');
   const [earthViewMode, setEarthViewMode] = useState<'crop' | 'satellite'>('satellite');
+  const [targetViewMode, setTargetViewMode] = useState<'crop' | 'orbital'>('orbital');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [fullscreenImage, setFullscreenImage] = useState<{
     url?: string;
@@ -57,6 +58,75 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
       return `https://maps.google.com/maps?q=${lat},${lon}&t=k&z=16&ie=UTF8&iwloc=&output=embed`;
     }
     return null;
+  };
+
+  const getTargetEmbedHtml = (site: PlanetaryAnalogSite | null, body: TargetBody) => {
+    if (!site) return '';
+    let lat = 18.6629;
+    let lon = 77.2188;
+    if (site.targetMapsUrl) {
+      const match = site.targetMapsUrl.match(/@([-\d.]+),([-\d.]+)/);
+      if (match) {
+        lat = parseFloat(match[1]);
+        lon = parseFloat(match[2]);
+      }
+    } else if (site.targetCoordinates) {
+      const parts = site.targetCoordinates.split(',');
+      if (parts.length === 2) {
+        lat = parseFloat(parts[0].replace(/[^\d.-]/g, '')) * (parts[0].includes('S') ? -1 : 1);
+        lon = parseFloat(parts[1].replace(/[^\d.-]/g, '')) * (parts[1].includes('W') ? -1 : 1);
+      }
+    } else if (body === 'Moon') {
+      lat = -0.4278;
+      lon = -125.8415;
+    }
+
+    const isMars = body.toLowerCase() === 'mars';
+    const tileUrl = isMars
+      ? 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-mars-basemap-v0-2/all/{z}/{x}/{y}.png'
+      : 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png';
+    const bodyName = isMars ? 'Mars' : 'Moon';
+    const markerColor = isMars ? '#f97316' : '#38bdf8';
+    const markerFill = isMars ? '#ea580c' : '#0284c7';
+    const locationSafe = (site.targetLocation || `${body} Target`).replace(/['"<>]/g, '');
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #030712; font-family: monospace; }
+    .leaflet-control-attribution { font-size: 8px !important; background: rgba(3,7,18,0.85) !important; color: #94a3b8 !important; padding: 2px 6px !important; }
+    .leaflet-popup-content-wrapper { background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; font-size: 11px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+    .leaflet-popup-tip { background: #0f172a; }
+    .leaflet-bar a { background-color: #0f172a !important; color: #94a3b8 !important; border-bottom: 1px solid #334155 !important; }
+    .leaflet-bar a:hover { background-color: #1e293b !important; color: #fff !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    var map = L.map('map', { center: [${lat}, ${lon}], zoom: 5, zoomControl: true, attributionControl: true });
+    L.tileLayer('${tileUrl}', {
+      maxZoom: 8,
+      minZoom: 1,
+      attribution: 'NASA / USGS / OpenPlanetary'
+    }).addTo(map);
+    var circle = L.circleMarker([${lat}, ${lon}], {
+      color: '${markerColor}',
+      fillColor: '${markerFill}',
+      fillOpacity: 0.85,
+      radius: 9,
+      weight: 2
+    }).addTo(map);
+    circle.bindPopup('<b>${locationSafe}</b><br><span style="color:${markerColor}">${lat.toFixed(4)}°, ${lon.toFixed(4)}° (${bodyName})</span>').openPopup();
+  </script>
+</body>
+</html>`;
   };
 
   // Reset zoom when switching active site
@@ -134,7 +204,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
   const exportCSV = () => {
     if (activeTab === 'sites') {
-      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Climate Proxy Match', 'Key Analog Factor', 'Coordinates', 'Google Maps Link', 'Status'];
+      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Climate Proxy Match', 'Key Analog Factor', 'Coordinates', 'Google Maps Link', 'Target Coordinates', 'Target Maps Link', 'Status'];
       const rows = filteredSites.map((s) => [
         `"${s.id}"`,
         `"${s.earthLocation}"`,
@@ -148,6 +218,8 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         `"${s.keyAnalogFactor}"`,
         `"${s.earthCoordinates ?? ''}"`,
         `"${s.googleMapsUrl ?? ''}"`,
+        `"${s.targetCoordinates ?? ''}"`,
+        `"${s.targetMapsUrl ?? ''}"`,
         `"${s.status}"`,
       ]);
       const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
@@ -377,6 +449,47 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         <p className="text-[11px] text-slate-300 mt-1 line-clamp-2 leading-relaxed" title={site.keyAnalogFactor}>
                           {site.keyAnalogFactor}
                         </p>
+
+                        {site.targetCoordinates && (
+                          <div className="flex items-center gap-1 text-[11px] font-mono text-slate-400 mt-1">
+                            <MapPin className={`w-3 h-3 shrink-0 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                            <span>{site.targetCoordinates}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {site.targetMapsUrl && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSiteModal(site);
+                                  setTargetViewMode('orbital');
+                                }}
+                                className={`px-2 py-0.5 rounded transition inline-flex items-center gap-1 text-[10px] font-mono font-medium shadow-xs cursor-pointer ${
+                                  targetBody === 'Mars'
+                                    ? 'bg-orange-950/80 hover:bg-orange-900/90 text-orange-300 border border-orange-800/60'
+                                    : 'bg-cyan-950/80 hover:bg-cyan-900/90 text-cyan-300 border border-cyan-800/60'
+                                }`}
+                                title={`View ${targetBody} orbital basemap and coordinates embed`}
+                              >
+                                <Globe className={`w-2.5 h-2.5 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                                <span>Orbital</span>
+                              </button>
+                              <a
+                                href={site.targetMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[10px] font-mono text-slate-400 hover:text-white inline-flex items-center gap-1 hover:underline"
+                                title={`Open exact coordinates in Google Maps ${targetBody} 3D (new tab)`}
+                              >
+                                <ExternalLink className="w-2.5 h-2.5" />
+                                <span>Maps</span>
+                              </a>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -798,12 +911,45 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-slate-400">
-                          {targetBody === 'Mars' ? 'HiRISE Mosaic' : 'LRO NAC 150cm'}
-                        </span>
+                        {/* Toggle between Crop Patch and Orbital Map View */}
+                        <div className="flex items-center gap-1 bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/80">
+                          <button
+                            onClick={() => setTargetViewMode('crop')}
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono transition flex items-center gap-1 cursor-pointer ${
+                              targetViewMode === 'crop'
+                                ? targetBody === 'Mars'
+                                  ? 'bg-orange-600 text-white font-bold shadow-xs'
+                                  : 'bg-cyan-600 text-white font-bold shadow-xs'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                            title={`View high-resolution ${targetBody === 'Mars' ? 'HiRISE' : 'LRO NAC'} optical sensor patch`}
+                          >
+                            <Layers className="w-2.5 h-2.5" />
+                            <span>{targetBody === 'Mars' ? 'HiRISE Patch' : 'LRO Patch'}</span>
+                          </button>
+                          <button
+                            onClick={() => setTargetViewMode('orbital')}
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono transition flex items-center gap-1 cursor-pointer ${
+                              targetViewMode === 'orbital'
+                                ? targetBody === 'Mars'
+                                  ? 'bg-amber-600 text-white font-bold shadow-xs'
+                                  : 'bg-blue-600 text-white font-bold shadow-xs'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                            title={`View ${targetBody} orbital basemap and coordinates embed`}
+                          >
+                            <Globe className="w-2.5 h-2.5" />
+                            <span>Orbital View</span>
+                          </button>
+                        </div>
+
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (targetViewMode === 'orbital' && selectedSiteModal.targetMapsUrl) {
+                              window.open(selectedSiteModal.targetMapsUrl, '_blank', 'noopener,noreferrer');
+                              return;
+                            }
                             setFullscreenZoom(1);
                             setFullscreenImage({
                               url: getSiteImage(selectedSiteModal, 'target'),
@@ -820,7 +966,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                               ? 'hover:bg-orange-950 text-slate-300 hover:text-orange-300 hover:border-orange-600/50'
                               : 'hover:bg-cyan-950 text-slate-300 hover:text-cyan-300 hover:border-cyan-600/50'
                           }`}
-                          title="Open Fullscreen View"
+                          title={targetViewMode === 'orbital' ? `Open Full ${targetBody} Orbital View in Google Maps Space (3D)` : 'Open Fullscreen View'}
                         >
                           <Maximize2 className={`w-3 h-3 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
                           <span className="hidden sm:inline">Fullscreen</span>
@@ -828,50 +974,89 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       </div>
                     </div>
 
-                    <div
-                      className="relative h-48 sm:h-56 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
-                      onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
-                      title="Click to toggle 2x optical zoom"
-                    >
-                      <img
-                        src={
-                          getSiteImage(selectedSiteModal, 'target') ||
-                          getSvgFallback(
-                            targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
-                            targetBody === 'Mars' ? 'mars' : 'moon',
-                            selectedSiteModal.targetLocation
-                          )
-                        }
-                        alt={selectedSiteModal.targetLocation}
-                        className="w-full h-full object-cover transition-transform duration-300 ease-out"
-                        style={{
-                          transform: `scale(${zoomLevel})`,
-                          transformOrigin: 'center center',
-                        }}
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.onerror = null;
-                          target.src = getSvgFallback(
-                            targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
-                            targetBody === 'Mars' ? 'mars' : 'moon',
-                            selectedSiteModal.targetLocation
-                          );
-                        }}
-                      />
-                      <div
-                        className={`absolute bottom-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none ${
-                          targetBody === 'Mars'
-                            ? 'bg-black/75 text-orange-300 border-orange-500/30'
-                            : 'bg-black/75 text-cyan-300 border-cyan-500/30'
-                        }`}
-                      >
-                        {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
+                    {targetViewMode === 'orbital' ? (
+                      <div className="relative h-48 sm:h-56 bg-slate-950 w-full overflow-hidden">
+                        <iframe
+                          title={`Orbital Surface: ${selectedSiteModal.targetLocation}`}
+                          srcDoc={getTargetEmbedHtml(selectedSiteModal, targetBody)}
+                          className="w-full h-full border-0"
+                          loading="lazy"
+                        />
+                        <div
+                          className={`absolute top-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none flex items-center gap-1 ${
+                            targetBody === 'Mars'
+                              ? 'bg-black/85 text-orange-300 border-orange-500/40'
+                              : 'bg-black/85 text-cyan-300 border-cyan-500/40'
+                          }`}
+                        >
+                          <Globe className={`w-2.5 h-2.5 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                          <span>Orbital Surface View • {targetBody} Basemap</span>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div
+                        className="relative h-48 sm:h-56 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                        onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
+                        title="Click to toggle 2x optical zoom"
+                      >
+                        <img
+                          src={
+                            getSiteImage(selectedSiteModal, 'target') ||
+                            getSvgFallback(
+                              targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                              targetBody === 'Mars' ? 'mars' : 'moon',
+                              selectedSiteModal.targetLocation
+                            )
+                          }
+                          alt={selectedSiteModal.targetLocation}
+                          className="w-full h-full object-cover transition-transform duration-300 ease-out"
+                          style={{
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center center',
+                          }}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = getSvgFallback(
+                              targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                              targetBody === 'Mars' ? 'mars' : 'moon',
+                              selectedSiteModal.targetLocation
+                            );
+                          }}
+                        />
+                        <div
+                          className={`absolute bottom-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none ${
+                            targetBody === 'Mars'
+                              ? 'bg-black/75 text-orange-300 border-orange-500/30'
+                              : 'bg-black/75 text-cyan-300 border-cyan-500/30'
+                          }`}
+                        >
+                          {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Target Card Footer */}
                     <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-                      <span className="text-[11px] text-slate-400">Orbital Ground Truth</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400">
+                          {selectedSiteModal.targetCoordinates || 'Orbital Ground Truth'}
+                        </span>
+                        {selectedSiteModal.targetMapsUrl && (
+                          <a
+                            href={selectedSiteModal.targetMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`text-[10px] inline-flex items-center gap-1 hover:underline ${
+                              targetBody === 'Mars' ? 'text-orange-400 hover:text-orange-300' : 'text-cyan-400 hover:text-cyan-300'
+                            }`}
+                            title={`Open exact coordinates in Google Maps ${targetBody} 3D`}
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Maps</span>
+                          </a>
+                        )}
+                      </div>
                       <span
                         className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
                           targetBody === 'Mars'
