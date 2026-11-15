@@ -14,7 +14,8 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
-  ExternalLink
+  ExternalLink,
+  Globe
 } from 'lucide-react';
 
 interface VariablesTableProps {
@@ -35,6 +36,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
   const [activeModalView, setActiveModalView] = useState<'both' | 'earth' | 'target'>('both');
+  const [earthViewMode, setEarthViewMode] = useState<'crop' | 'satellite'>('crop');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [fullscreenImage, setFullscreenImage] = useState<{
     url?: string;
@@ -46,6 +48,16 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
     location: string;
   } | null>(null);
   const [fullscreenZoom, setFullscreenZoom] = useState<number>(1);
+
+  const getSatelliteEmbedUrl = (site: PlanetaryAnalogSite | null) => {
+    if (!site?.googleMapsUrl) return null;
+    const match = site.googleMapsUrl.match(/q=([-\d.]+),([-\d.]+)/);
+    if (match) {
+      const [, lat, lon] = match;
+      return `https://maps.google.com/maps?q=${lat},${lon}&t=k&z=16&ie=UTF8&iwloc=&output=embed`;
+    }
+    return null;
+  };
 
   // Reset zoom when switching active site
   useEffect(() => {
@@ -276,20 +288,37 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         <span className="text-white text-sm font-bold block group-hover:text-cyan-300 transition leading-snug">
                           {site.earthLocation}
                         </span>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="text-[10px] font-mono text-emerald-400/90">Terrestrial Reference</span>
                           {site.googleMapsUrl && (
-                            <a
-                              href={site.googleMapsUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-0.5 hover:underline"
-                              title="Open exact coordinates in Google Maps"
-                            >
-                              <ExternalLink className="w-2.5 h-2.5" />
-                              <span>Maps</span>
-                            </a>
+                            <>
+                              <span className="text-slate-600 text-[10px]">•</span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSiteModal(site);
+                                  setEarthViewMode('satellite');
+                                  setActiveModalView('both');
+                                }}
+                                className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-0.5 hover:underline cursor-pointer"
+                                title="Open interactive satellite terrain preview"
+                              >
+                                <Globe className="w-2.5 h-2.5 text-cyan-400" />
+                                <span>Satellite</span>
+                              </button>
+                              <span className="text-slate-600 text-[10px]">•</span>
+                              <a
+                                href={site.googleMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[10px] font-mono text-slate-400 hover:text-slate-300 inline-flex items-center gap-0.5 hover:underline"
+                                title="Open exact coordinates in Google Maps (new tab)"
+                              >
+                                <ExternalLink className="w-2.5 h-2.5" />
+                                <span>Maps</span>
+                              </a>
+                            </>
                           )}
                         </div>
                       </div>
@@ -574,7 +603,40 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                         <span>Earth: {selectedSiteModal.earthLocation}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-slate-400">{selectedSiteModal.earthCountry}</span>
+                        {/* Toggle Patch Crop vs Satellite Terrain */}
+                        {getSatelliteEmbedUrl(selectedSiteModal) && (
+                          <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEarthViewMode('crop');
+                              }}
+                              className={`px-2 py-0.5 rounded transition cursor-pointer font-medium ${
+                                earthViewMode === 'crop'
+                                  ? 'bg-emerald-600 text-white font-bold'
+                                  : 'text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              Patch Crop
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEarthViewMode('satellite');
+                              }}
+                              className={`px-2 py-0.5 rounded transition cursor-pointer flex items-center gap-1 font-medium ${
+                                earthViewMode === 'satellite'
+                                  ? 'bg-emerald-600 text-white font-bold'
+                                  : 'text-slate-400 hover:text-white'
+                              }`}
+                              title="Interactive satellite terrain imagery"
+                            >
+                              <Globe className="w-2.5 h-2.5" />
+                              <span>Satellite Terrain</span>
+                            </button>
+                          </div>
+                        )}
+                        <span className="hidden lg:inline text-[10px] font-mono text-slate-400">{selectedSiteModal.earthCountry}</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -598,49 +660,64 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       </div>
                     </div>
 
-                    <div
-                      className="relative h-44 sm:h-52 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
-                      onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
-                      title="Click to toggle 2x optical zoom"
-                    >
-                      <img
-                        src={getSiteImage(selectedSiteModal, 'earth') || getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation)}
-                        alt={selectedSiteModal.earthLocation}
-                        className="w-full h-full object-cover transition-transform duration-300 ease-out"
-                        style={{
-                          transform: `scale(${zoomLevel})`,
-                          transformOrigin: 'center center',
-                        }}
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.onerror = null;
-                          target.src = getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation);
-                        }}
-                      />
-                      <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md pointer-events-none">
-                        GLORTHO • 15 cm/px
+                    {earthViewMode === 'satellite' && getSatelliteEmbedUrl(selectedSiteModal) ? (
+                      <div className="relative h-48 sm:h-56 bg-slate-950 w-full overflow-hidden">
+                        <iframe
+                          title={`Satellite Terrain: ${selectedSiteModal.earthLocation}`}
+                          src={getSatelliteEmbedUrl(selectedSiteModal)!}
+                          className="w-full h-full border-0"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 left-2 text-[10px] font-mono bg-black/85 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40 backdrop-blur-md pointer-events-none flex items-center gap-1">
+                          <Globe className="w-2.5 h-2.5 text-emerald-400" />
+                          <span>Satellite Terrain View • True Topography</span>
+                        </div>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFullscreenZoom(1);
-                          setFullscreenImage({
-                            url: getSiteImage(selectedSiteModal, 'earth'),
-                            title: `Earth: ${selectedSiteModal.earthLocation}`,
-                            subtitle: `${selectedSiteModal.earthCountry} • GLORTHO Terrestrial Sensor`,
-                            badge: 'Earth Surface',
-                            body: 'earth',
-                            fallbackLabel: 'EARTH CROP',
-                            location: selectedSiteModal.earthLocation,
-                          });
-                        }}
-                        className="absolute top-2 right-2 px-2 py-1 rounded bg-black/75 hover:bg-emerald-950/90 text-slate-300 hover:text-emerald-200 border border-slate-700 hover:border-emerald-500/60 shadow-lg backdrop-blur-md transition flex items-center gap-1.5 text-[10px] font-mono cursor-pointer"
-                        title="View Fullscreen"
+                    ) : (
+                      <div
+                        className="relative h-48 sm:h-56 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                        onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
+                        title="Click to toggle 2x optical zoom"
                       >
-                        <Maximize2 className="w-3 h-3 text-emerald-400" />
-                        <span>Fullscreen</span>
-                      </button>
-                    </div>
+                        <img
+                          src={getSiteImage(selectedSiteModal, 'earth') || getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation)}
+                          alt={selectedSiteModal.earthLocation}
+                          className="w-full h-full object-cover transition-transform duration-300 ease-out"
+                          style={{
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center center',
+                          }}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation);
+                          }}
+                        />
+                        <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md pointer-events-none">
+                          GLORTHO • 15 cm/px
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFullscreenZoom(1);
+                            setFullscreenImage({
+                              url: getSiteImage(selectedSiteModal, 'earth'),
+                              title: `Earth: ${selectedSiteModal.earthLocation}`,
+                              subtitle: `${selectedSiteModal.earthCountry} • GLORTHO Terrestrial Sensor`,
+                              badge: 'Earth Surface',
+                              body: 'earth',
+                              fallbackLabel: 'EARTH CROP',
+                              location: selectedSiteModal.earthLocation,
+                            });
+                          }}
+                          className="absolute top-2 right-2 px-2 py-1 rounded bg-black/75 hover:bg-emerald-950/90 text-slate-300 hover:text-emerald-200 border border-slate-700 hover:border-emerald-500/60 shadow-lg backdrop-blur-md transition flex items-center gap-1.5 text-[10px] font-mono cursor-pointer"
+                          title="View Fullscreen"
+                        >
+                          <Maximize2 className="w-3 h-3 text-emerald-400" />
+                          <span>Fullscreen</span>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Earth Card Footer */}
                     <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
@@ -718,7 +795,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                     </div>
 
                     <div
-                      className="relative h-44 sm:h-52 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                      className="relative h-48 sm:h-56 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
                       onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
                       title="Click to toggle 2x optical zoom"
                     >
