@@ -464,7 +464,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
             <thead className="bg-slate-950/80 text-slate-400 uppercase font-mono tracking-wider border-b border-slate-800 text-[10px]">
               <tr>
                 <th className="py-3 px-4">Variable Metric</th>
-                <th className="py-3 px-4">Python Pipeline Key</th>
+                <th className="py-3 px-4">Reference Parameter Key</th>
                 <th className="py-3 px-4">Calculated Value</th>
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Match Status</th>
