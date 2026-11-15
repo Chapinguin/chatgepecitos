@@ -122,7 +122,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
   const exportCSV = () => {
     if (activeTab === 'sites') {
-      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Climate Proxy Match', 'Key Analog Factor', 'Status'];
+      const headers = ['ID', 'Earth Location', 'Country', 'Target Location', 'Target Body', 'Overall Match Score (%)', 'Mineral Match', 'Terrain Match', 'Climate Proxy Match', 'Key Analog Factor', 'Coordinates', 'Google Maps Link', 'Status'];
       const rows = filteredSites.map((s) => [
         `"${s.id}"`,
         `"${s.earthLocation}"`,
@@ -130,10 +130,12 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         `"${s.targetLocation}"`,
         `"${s.targetBody}"`,
         `"${s.overallMatchScore}"`,
-        `"${s.mineralMatch}"`,
-        `"${s.terrainMatch}"`,
+        `"${s.mineralMatch ?? ''}"`,
+        `"${s.terrainMatch ?? ''}"`,
         `"${s.climateProxyMatch ?? ''}"`,
         `"${s.keyAnalogFactor}"`,
+        `"${s.earthCoordinates ?? ''}"`,
+        `"${s.googleMapsUrl ?? ''}"`,
         `"${s.status}"`,
       ]);
       const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');

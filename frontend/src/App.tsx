@@ -66,6 +66,7 @@ export function App() {
         onRefreshCSV={() => fetchPlanetaryData(targetBody)}
         isLoading={isLoading}
         lastUpdated={lastUpdated}
+        filename={`outputs/${result.filename}`}
       />
 
       <main className="relative flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
