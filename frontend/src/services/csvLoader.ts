@@ -155,6 +155,8 @@ export const parsePlanetaryData = (
         targetImageUrl: resolveRankImage(row.targetImageUrl, index, 'target', targetBody),
         googleMapsUrl: row.googleMapsUrl?.trim() || undefined,
         earthCoordinates: row.earthCoordinates?.trim() || undefined,
+        targetCoordinates: row.targetCoordinates?.trim() || undefined,
+        targetMapsUrl: row.targetMapsUrl?.trim() || undefined,
       }));
   }
 

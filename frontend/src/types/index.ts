@@ -42,6 +42,7 @@ export interface PlanetaryAnalogSite {
   googleMapsUrl?: string;
   earthCoordinates?: string;
   targetCoordinates?: string;
+  targetMapsUrl?: string;
 }
 
 export interface AnalysisResult {
