@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { VariableResult, PlanetaryAnalogSite, TargetBody } from '../types';
 import {
   Search,
@@ -7,7 +7,6 @@ import {
   Sparkles,
   SlidersHorizontal,
   X,
-  UploadCloud,
   Layers,
   ArrowRightLeft,
   ChevronLeft,
@@ -32,9 +31,6 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
   const [activeModalView, setActiveModalView] = useState<'both' | 'earth' | 'target'>('both');
-  const [customSiteImages, setCustomSiteImages] = useState<Record<string, { earth?: string; target?: string }>>({});
-  const uploadInputRef = useRef<HTMLInputElement>(null);
-  const [uploadTargetSite, setUploadTargetSite] = useState<{ id: string; type: 'earth' | 'target' } | null>(null);
 
   // Close modal on Escape key press
   useEffect(() => {
@@ -89,24 +85,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
     }
   };
 
-  const handleSiteImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0 || !uploadTargetSite) return;
-    const file = e.target.files[0];
-    const url = URL.createObjectURL(file);
-    setCustomSiteImages((prev) => ({
-      ...prev,
-      [uploadTargetSite.id]: {
-        ...prev[uploadTargetSite.id],
-        [uploadTargetSite.type]: url,
-      },
-    }));
-    setUploadTargetSite(null);
-  };
-
   const getSiteImage = (site: PlanetaryAnalogSite, type: 'earth' | 'target') => {
-    if (customSiteImages[site.id]?.[type]) {
-      return customSiteImages[site.id][type]!;
-    }
     return type === 'earth' ? site.earthImageUrl : site.targetImageUrl;
   };
 
@@ -229,15 +208,6 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Hidden file input for uploading custom PNGs to specific sites */}
-      <input
-        type="file"
-        ref={uploadInputRef}
-        onChange={handleSiteImageUpload}
-        accept="image/png,image/jpeg,image/webp"
-        className="hidden"
-      />
 
       {/* View 1: Analog Sites Table with Highlighted Comparison Action */}
       {activeTab === 'sites' && (
@@ -551,19 +521,12 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       </div>
                     </div>
 
-                    {/* Upload / Replace Earth PNG */}
-                    <div className="p-2 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs">
-                      <span className="text-[10px] text-slate-400 font-mono">Volcanic & Regolith Analog</span>
-                      <button
-                        onClick={() => {
-                          setUploadTargetSite({ id: selectedSiteModal.id, type: 'earth' });
-                          uploadInputRef.current?.click();
-                        }}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-900/60 text-slate-300 hover:text-emerald-200 text-[10px] font-semibold border border-slate-700 transition cursor-pointer"
-                      >
-                        <UploadCloud className="w-3 h-3" />
-                        <span>Replace Earth PNG</span>
-                      </button>
+                    {/* Earth Card Footer */}
+                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                      <span className="text-[11px] text-slate-400">Terrestrial Morphology Context</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40 font-semibold">
+                        Earth Surface
+                      </span>
                     </div>
                   </div>
                 )}
@@ -617,23 +580,18 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                       </div>
                     </div>
 
-                    {/* Upload / Replace Target PNG */}
-                    <div className="p-2 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs">
-                      <span className="text-[10px] text-slate-400 font-mono">Planetary Surface Ground Truth</span>
-                      <button
-                        onClick={() => {
-                          setUploadTargetSite({ id: selectedSiteModal.id, type: 'target' });
-                          uploadInputRef.current?.click();
-                        }}
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold border border-slate-700 transition cursor-pointer ${
+                    {/* Target Card Footer */}
+                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                      <span className="text-[11px] text-slate-400">Orbital Ground Truth</span>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
                           targetBody === 'Mars'
-                            ? 'hover:bg-orange-900/60 hover:text-orange-200'
-                            : 'hover:bg-cyan-900/60 hover:text-cyan-200'
+                            ? 'bg-orange-950 text-orange-400 border-orange-800/40'
+                            : 'bg-cyan-950 text-cyan-400 border-cyan-800/40'
                         }`}
                       >
-                        <UploadCloud className="w-3 h-3" />
-                        <span>Replace {targetBody} PNG</span>
-                      </button>
+                        {targetBody} Surface
+                      </span>
                     </div>
                   </div>
                 )}
