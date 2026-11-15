@@ -56,6 +56,21 @@ chatgepecitos/
 
 ---
 
+## 🎯 Hackathon Challenge Milestones & Issues Resolved
+
+This repository resolves all functional, scientific, and architectural deliverables defined in the project scope:
+
+| Issue | Milestone | Delivered Solution |
+| :---: | :--- | :--- |
+| **[#2](https://github.com/Chapinguin/chatgepecitos/issues/2)** | **Integración y estabilidad** | Clean decoupled architecture (`frontend/`, `backend/`, `out/`). Zero lint warnings, zero build errors, and verified automated CI/CD pipeline. |
+| **[#3](https://github.com/Chapinguin/chatgepecitos/issues/3)** | **Interfaz web y visualización geográfica** | React 19 + Tailwind CSS responsive UI (mobile sidescroll + laptop full-width). Dual Planetary Switch, Lightbox modal with interactive 3D satellite topography embeds (Google Maps & OpenPlanetaryMap). |
+| **[#4](https://github.com/Chapinguin/chatgepecitos/issues/4)** | **Desarrollo de API REST y motores científicos** | FastAPI service (`backend/main.py`) with memory-mapped GeoTIFF processing (`backend/pipeline.py`) capable of handling multi-gigabyte rasters without RAM exhaustion. |
+| **[#5](https://github.com/Chapinguin/chatgepecitos/issues/5)** | **Análisis de similitud espectral (SAM & Basemap matching)** | Multi-spectral layer decomposition, band ratios, and radar charts evaluating albedo, local variance, and directional texture against Mars CTX/HiRISE and Moon LRO NAC basemaps. |
+| **[#6](https://github.com/Chapinguin/chatgepecitos/issues/6)** | **Motor de similitud ambiental y ranking** | Multi-scale feature extraction (`lum`, `std_3/7/15`, `grad_mag`, `coherence`) and Gaussian Bhattacharyya distance ($BC$) ranking 5,175 evaluated orthophoto tiles into validated Top 5 analog sites for Moon & Mars. |
+| **[#7](https://github.com/Chapinguin/chatgepecitos/issues/7)** | **Procesamiento, validación y gestión de datos científicos** | Full scientific verification: clear differentiation between raster-calculated parameters and external NASA ground-truth benchmarks (Curiosity REMS, Apollo 16 core samples) highlighted with explicit badges in datagrid. |
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Run the Frontend (React Dashboard)

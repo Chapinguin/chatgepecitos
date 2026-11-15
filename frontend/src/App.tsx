@@ -34,6 +34,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     fetchPlanetaryData(targetBody);
   }, [targetBody, fetchPlanetaryData]);
 

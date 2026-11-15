@@ -131,6 +131,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
   // Reset zoom when switching active site
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     setZoomLevel(1);
     setFullscreenZoom(1);
   }, [selectedSiteModal]);

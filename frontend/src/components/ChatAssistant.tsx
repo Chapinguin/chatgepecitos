@@ -19,6 +19,7 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
 
   useEffect(() => {
     // Reset welcome message on target body change
+    // eslint-disable-next-line react/set-state-in-effect
     setMessages([
       {
         id: '1',
