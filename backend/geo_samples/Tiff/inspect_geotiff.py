@@ -1,7 +1,7 @@
 import rasterio
 from pathlib import Path
 
-base = Path(r"C:\Users\super\chatgepecitos\backend\Roberto\Tiff\Tiff")
+base = Path(__file__).resolve().parent
 
 carpetas = {
     "tierra": base / "Tierra",

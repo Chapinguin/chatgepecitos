@@ -2,7 +2,7 @@
 
 > **Challenge:** *"Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars"*  
 > **Team:** **chatgepecitos** 🚀  
-> **NASA Space Apps Challenge / Hackathon 36h Edition**
+> **NASA Space Apps Challenge**
 
 An interactive geospatial and multispectral intelligence platform designed to identify, cross-match, and visualize terrestrial analog field locations on Earth that mirror environmental, mineralogical, and geomechanical conditions of **Permanent Lunar Base locations** (e.g., Shackleton Crater, Marius Hills lava tubes) and **Martian exploration sites** (e.g., Jezero and Gale Craters).
 
@@ -10,11 +10,12 @@ An interactive geospatial and multispectral intelligence platform designed to id
 
 ## ⚡ Key Architecture & Features
 
-- **Decoupled Heavy Image Processing:** Heavy multispectral TIFF files (>1 GB) are processed in Python/Jupyter notebooks without saturating browser memory. Only calculated indices, spectral matches, and variables are synchronized into the React frontend.
-- **Planetary Analog Switch (`Earth with Mars` vs `Earth with Moon`):** A high-impact toggle that re-calibrates all metrics, multispectral radar curves, candidate sites, and AI insights between Moon and Mars conditions.
-- **Terrestrial Analog Sites Database:** Verified scientific locations (Atacama Desert, Rio Tinto Basin, Devon Island, Haleakala Volcanic Complex, Cinder Lake, Lanzarote lava tubes) mapped with overall match scores, mineralogy fidelity, and terrain roughness.
+- **Multi-Scale Spatial & Texture Matching Engine:** Computes high-dimensional feature distributions (surface luminance, multi-scale local standard deviation, Sobel spatial gradient magnitude, and directional structure coherence) over 5,175 GeoTIFF orthophoto tiles ($128\times128$ px) across New Mexico volcanic and sedimentary fields (Jemez Caldera, Blue Water, Manzanos).
+- **Multivariate Bhattacharyya Distance:** Robust statistical distance evaluation between multivariate Gaussian distributions (mean vector and covariance matrix) comparing Earth candidates against Mars (CTX/HiRISE) and Moon (LRO NAC) target basemaps.
+- **Dual Planetary Switch (`Earth with Mars` vs `Earth with Moon`):** Instant recalibration between Martian surface conditions and Permanent Lunar Base exploration sites with responsive synchronization across KPIs, charts, and candidate sites.
+- **High-Density Interactive Datagrid:** Inspects Earth candidates, 3D satellite topography embeds, Google Maps satellite mode links, and extracted geochemical/geomorphological variables.
 - **Chatgepecitos AI Copilot:** Interactive reasoning assistant capable of answering contextual questions about analog matches, regolith proxies, and permanent habitat feasibility.
-- **Direct Repo CSV Synchronization:** The frontend dynamically reads `outputs/earth_with_mars_variables.csv` and `outputs/earth_with_moon_variables.csv`, allowing the data science team to update the live dashboard with a single `df.to_csv()` call from their notebooks.
+- **Decoupled Data Pipeline:** Heavy raster computations are pre-processed and exported into high-performance GeoJSON and structured CSV feeds (`public/data/`), enabling instant loading and responsive presentation on mobile and desktop.
 
 ---
 
@@ -22,27 +23,34 @@ An interactive geospatial and multispectral intelligence platform designed to id
 
 ```
 chatgepecitos/
-├── frontend/                   # React + Vite + TypeScript + Tailwind CSS
-│   ├── public/data/            # Planetary analog CSV datasets
-│   │   ├── earth_with_mars_variables.csv
-│   │   ├── earth_with_moon_variables.csv
-│   │   ├── earth_with_mars_layers.csv
-│   │   ├── earth_with_moon_layers.csv
-│   │   └── planetary_analog_sites.csv
+├── frontend/                     # React 19 + Vite + TypeScript + Tailwind CSS
+│   ├── public/
+│   │   ├── data/                 # Live planetary analog datasets & metadata
+│   │   │   ├── earth_with_mars_variables.csv
+│   │   │   ├── earth_with_moon_variables.csv
+│   │   │   ├── earth_with_mars_layers.csv
+│   │   │   ├── earth_with_moon_layers.csv
+│   │   │   ├── earth_with_mars_histogram.csv
+│   │   │   ├── earth_with_moon_histogram.csv
+│   │   │   └── planetary_analog_sites.csv
+│   │   └── images/patches/       # Real cropped Earth & target satellite imagery
 │   ├── src/
-│   │   ├── components/         # PlanetarySwitch, MetricsCards, Charts, Tables, Copilot
-│   │   ├── services/           # CSV Loader (PapaParse) & API client
-│   │   └── types/              # TypeScript schemas for planetary analog matching
+│   │   ├── components/           # PlanetarySwitch, MetricsCards, VariableCharts, VariablesTable, Copilot
+│   │   ├── services/             # CSV Loader (PapaParse) & backend client
+│   │   └── types/                # TypeScript interfaces for planetary analog metrics
 │   └── package.json
 │
-├── backend/                    # Python API & Multispectral Pipeline
-│   ├── pipeline.py             # Reusable TIFF & proxy extraction logic
-│   ├── main.py                 # FastAPI service (/api/health, /api/process)
-│   ├── notebooks/              # Jupyter Notebooks (.ipynb) workspace
-│   └── requirements.txt
+├── backend/                      # Python Multispectral & Geospatial Processing
+│   ├── analog_matcher.py         # Multi-scale feature extraction & Bhattacharyya matching engine
+│   ├── pipeline.py               # Modular GeoTIFF memory-mapping & proxy extractor
+│   ├── main.py                   # FastAPI service (/api/health, /api/process)
+│   ├── geo_samples/              # Sample GeoTIFF inspection and test scripts
+│   ├── notebooks/                # Jupyter Notebooks workspace
+│   └── requirements.txt          # Python dependencies (rasterio, scikit-image, scipy, fastapi)
 │
-├── outputs/                    # Export directory for notebook CSV results
-├── .gitignore                  # Prevents accidental commit of heavy TIFFs & checkpoints
+├── out/                          # Pipeline export artifacts (analogues.geojson, top5.json, crops)
+├── outputs/                      # Notebook export staging directory
+├── .gitignore                    # Prevents tracking heavy TIFFs and local temp files
 └── README.md
 ```
 
@@ -58,29 +66,18 @@ npm run dev
 ```
 Open **[http://localhost:3000](http://localhost:3000)** (or `http://localhost:3001`) in your browser.
 
-### 2. Run the Backend API (FastAPI - Optional)
+### 2. Run the Geospatial Matching Engine (Python)
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate       # On Windows: .venv\Scripts\activate
+source .venv/bin/activate         # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+python analog_matcher.py --help
+```
+
+### 3. Run the FastAPI Backend (Optional)
+```bash
+cd backend
 python main.py
 ```
-The API server runs on `http://localhost:8000` with interactive Swagger docs at `/docs`.
-
----
-
-## 🔬 How the Backend Team Exports Data from Notebooks
-
-In your Jupyter Notebook (`.ipynb`), append this cell at the end of your analysis:
-
-```python
-import pandas as pd
-
-# Export your calculated analog match DataFrame:
-target_body = "mars"  # or "moon"
-df_analogs.to_csv(f"outputs/earth_with_{target_body}_variables.csv", index=False)
-print("✅ CSV updated for Chatgepecitos Frontend")
-```
-
-Click **"Sync CSV"** in the frontend header to immediately render the updated variables across the entire dashboard!
+API runs on `http://localhost:8000` with interactive docs at `http://localhost:8000/docs`.

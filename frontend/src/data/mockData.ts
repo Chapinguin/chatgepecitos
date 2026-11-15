@@ -194,7 +194,7 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
         ],
     pipelineLogs: [
       `[00.01s] Planetary Analog Pipeline active: Earth with ${targetBody}`,
-      `[00.03s] Registered active GeoTIFF input from backend/Roberto/Tiff/`,
+      `[00.03s] Registered active GeoTIFF input from backend/geo_samples/Tiff/`,
       `[00.05s] Multivariate Bhattacharyya distance evaluated across 5,175 orthophoto patches.`,
       `[00.08s] Pipeline results synced successfully.`
     ]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from collections import Counter, defaultdict
@@ -22,7 +23,8 @@ from skimage.filters import sobel
 # ============================================================
 # Config
 # ============================================================
-BASE = Path(r"C:\Users\super\chatgepecitos\backend\Roberto\Tiff\Tiff")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+BASE = Path(os.environ.get("TIFF_DATA_DIR", REPO_ROOT / "backend" / "geo_samples" / "Tiff"))
 CARPETAS = {"tierra": BASE / "Tierra", "luna": BASE / "Luna", "marte": BASE / "Marte"}
 
 
