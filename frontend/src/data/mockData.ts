@@ -154,8 +154,8 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
             keyAnalogFactor: 'High-silica volcanic tuff & hydrothermal alteration resembling Jezero crater rim',
             status: 'Verified Match',
             earthImageUrl: '/images/patches/01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00384_c01408.png',
-            googleMapsUrl: 'https://www.google.com/maps?q=35.793969,-106.779540',
-            earthCoordinates: '35.7940° N -106.7795° W'
+            googleMapsUrl: 'https://www.google.com/maps?q=35.793969,-106.779540&t=k',
+            earthCoordinates: '35.7940° N, 106.7795° W'
           },
           {
             id: 'M-02',
@@ -170,8 +170,8 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
             keyAnalogFactor: 'Basaltic ash fall & layered pyroclastic beds matching delta sediments',
             status: 'Verified Match',
             earthImageUrl: '/images/patches/02_tierra__GLORTHO_NM_22June2018_am_Jemez_c0r14_ortho_r01280_c01152.png',
-            googleMapsUrl: 'https://www.google.com/maps?q=35.708584,-106.646929',
-            earthCoordinates: '35.7086° N -106.6469° W'
+            googleMapsUrl: 'https://www.google.com/maps?q=35.708584,-106.646929&t=k',
+            earthCoordinates: '35.7086° N, 106.6469° W'
           }
         ]
       : [
@@ -188,8 +188,8 @@ export const getInitialMockResult = (targetBody: TargetBody): AnalysisResult => 
             keyAnalogFactor: 'Impact-crater-like caldera rim with pulverized volcanic tuff regolith',
             status: 'Verified Match',
             earthImageUrl: '/images/patches/01_tierra__GLORTHO_NM_26June2018_Jimez2_c3r13_ortho_r00128_c01408.png',
-            googleMapsUrl: 'https://www.google.com/maps?q=35.795123,-106.779540',
-            earthCoordinates: '35.7951° N -106.7795° W'
+            googleMapsUrl: 'https://www.google.com/maps?q=35.795123,-106.779540&t=k',
+            earthCoordinates: '35.7951° N, 106.7795° W'
           }
         ],
     pipelineLogs: [
