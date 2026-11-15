@@ -37,6 +37,8 @@ export interface PlanetaryAnalogSite {
   climateProxyMatch: number | null;
   keyAnalogFactor: string;
   status: 'Verified Match' | 'High Match' | 'Moderate Match' | 'Candidate';
+  earthImageUrl?: string;
+  targetImageUrl?: string;
 }
 
 export interface AnalysisResult {
@@ -70,4 +72,25 @@ export interface PipelineConfig {
   minMatchThreshold: number;
   normalizeBands: boolean;
   filterAtmosphericInterference: boolean;
+}
+
+export interface SatellitePatch {
+  id: string;
+  name: string;
+  source: 'tierra' | 'marte' | 'luna' | 'custom';
+  targetBody: 'Earth' | 'Mars' | 'Moon' | 'Both';
+  imageUrl: string;
+  thumbnailUrl?: string;
+  resolution: string;
+  coordinates: string;
+  bboxPx?: [number, number, number, number];
+  bboxCrs?: [number, number, number, number];
+  simMars: number;
+  simMoon: number;
+  refMars?: string;
+  refMoon?: string;
+  analogType: string;
+  status: 'Verified Crop' | 'Candidate Analog' | 'Ground Truth' | 'Custom Upload';
+  description?: string;
+  timestamp?: string;
 }

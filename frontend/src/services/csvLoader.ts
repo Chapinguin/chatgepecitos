@@ -10,6 +10,33 @@ const parseOptionalNumber = (value: string | undefined): number | null => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+/**
+ * Dynamic Rank-Based Image Resolver (Enfoque 1).
+ * Maps candidate site rank/position to corresponding top crops dynamically without hardcoding.
+ */
+const resolveRankImage = (
+  explicitUrl: string | undefined,
+  index: number,
+  type: 'earth' | 'target',
+  targetBody: TargetBody
+): string | undefined => {
+  if (explicitUrl && explicitUrl.trim()) {
+    return explicitUrl.trim();
+  }
+
+  if (type === 'earth') {
+    const isMars = targetBody.toLowerCase() === 'mars';
+    const rank = index + 1;
+    const globalRank = isMars ? rank : rank + 5;
+    const rankStr = String(globalRank).padStart(2, '0');
+    return `/images/patches/top_${rankStr}_earth.png`;
+  }
+
+  // Target planetary body: if no explicit crop is provided in CSV,
+  // return undefined so UI renders the scientific sensor reticle fallback.
+  return undefined;
+};
+
 export const loadPlanetaryResults = async (targetBody: TargetBody): Promise<AnalysisResult> => {
   const isMars = targetBody === 'Mars';
   const varFileName = isMars ? 'earth_with_mars_variables.csv' : 'earth_with_moon_variables.csv';
@@ -112,7 +139,7 @@ export const parsePlanetaryData = (
     });
     analogSites = (sitesParse.data as Record<string, string>[])
       .filter((row) => (row.targetBody || '').toLowerCase() === targetBody.toLowerCase())
-      .map((row) => ({
+      .map((row, index) => ({
         id: row.id || `SITE-${Math.random().toString(36).substring(2, 6)}`,
         earthLocation: row.earthLocation || 'Earth Location',
         earthCountry: row.earthCountry || 'Global',
@@ -124,6 +151,8 @@ export const parsePlanetaryData = (
         climateProxyMatch: parseOptionalNumber(row.climateProxyMatch),
         keyAnalogFactor: row.keyAnalogFactor || 'Geological composition proxy',
         status: (row.status || 'Candidate') as PlanetaryAnalogSite['status'],
+        earthImageUrl: resolveRankImage(row.earthImageUrl, index, 'earth', targetBody),
+        targetImageUrl: resolveRankImage(row.targetImageUrl, index, 'target', targetBody),
       }));
   }
 
