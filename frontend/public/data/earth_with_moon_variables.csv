@@ -1,7 +1,7 @@
 name,key,value,unit,category,status,change,description
 Top Analog Match,top_match,76.24,%,Bhattacharyya Similarity,optimal,+8.1%,Highest multivariate texture correlation reached in New Mexico Jemez volcanic field
-Analyzed Surface Patches,analyzed_patches,5175,sites,Spatial Coverage,optimal,+5170,Total 128x128 GeoTIFF orthophoto tiles evaluated against Moon LRO NAC shaded models
-High-Fidelity Candidates,high_fidelity,84,sites,Fidelity Threshold,match,+1.6%,Patches exceeding 65% match given harsh lunar regolith optical divergence
+Analyzed Surface Patches,analyzed_patches,5175,tiles,Spatial Coverage,optimal,+5170,Total 128x128 GeoTIFF orthophoto tiles evaluated against Moon LRO NAC shaded models
+High-Fidelity Candidates,high_fidelity,84,tiles,Fidelity Threshold,match,+1.6%,Patches exceeding 65% match given harsh lunar regolith optical divergence
 Mean Surface Similarity,mean_match,28.10,%,Regional Baseline,match,+3.5%,Average terrain correlation across all evaluated New Mexico orthophoto tiles
 Luminance Texture Match,lum_texture,74.50,%,Surface Photometry,optimal,+5.2%,Albedo reflectance curve matched against Lunar Reconnaissance Orbiter data
 Topographic Roughness RMS,roughness_rms,71.20,%,Geomorphology,match,+2.8%,Local slope and boulder-scale roughness benchmarked against lunar maria

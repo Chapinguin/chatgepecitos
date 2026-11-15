@@ -111,7 +111,7 @@ export function App() {
           <div className="flex items-center gap-4 text-xs font-mono text-slate-400 border-t md:border-t-0 border-slate-800 pt-2 md:pt-0 w-full md:w-auto justify-between md:justify-end">
             <div className="flex items-center gap-1.5">
               <Target className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Top {result.analogSites.length} of 5,175 Analyzed Sites</span>
+              <span>Top {result.analogSites.length} of 5,175 Analyzed Tiles</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
