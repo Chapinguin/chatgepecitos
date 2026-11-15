@@ -115,6 +115,18 @@ export const parsePlanetaryData = (
         climateProxyMatch: Number(row.climateProxyMatch || 0),
         keyAnalogFactor: row.keyAnalogFactor || 'Geological composition proxy',
         status: (row.status || 'Candidate') as PlanetaryAnalogSite['status'],
+        earthImageUrl:
+          row.earthImageUrl ||
+          (row.id === 'M-01' || row.id === 'L-01'
+            ? '/images/patches/01_tierra_r00128_c00256.png'
+            : `/images/patches/${row.id?.toLowerCase()}_earth.png`),
+        targetImageUrl:
+          row.targetImageUrl ||
+          (row.id === 'M-01'
+            ? '/images/patches/marte_hirise_sojourner_01.png'
+            : row.id === 'L-01'
+            ? '/images/patches/luna_lro_nac_shade_01.png'
+            : `/images/patches/${row.id?.toLowerCase()}_target.png`),
       }));
   }
 

@@ -37,6 +37,8 @@ export interface PlanetaryAnalogSite {
   climateProxyMatch: number;
   keyAnalogFactor: string;
   status: 'High Match' | 'Moderate Match' | 'Candidate';
+  earthImageUrl?: string;
+  targetImageUrl?: string;
 }
 
 export interface AnalysisResult {
