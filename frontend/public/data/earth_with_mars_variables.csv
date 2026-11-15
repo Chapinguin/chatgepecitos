@@ -1,7 +1,7 @@
 name,key,value,unit,category,status,change,description
 Top Analog Match,top_match,97.33,%,Bhattacharyya Similarity,optimal,+12.4%,Highest multivariate texture correlation reached in New Mexico Jemez terrain
-Analyzed Surface Patches,analyzed_patches,5175,sites,Spatial Coverage,optimal,+5170,Total 128x128 GeoTIFF orthophoto tiles evaluated across regional scenes
-High-Fidelity Candidates,high_fidelity,2836,sites,Fidelity Threshold,match,+54.8%,Patches exceeding 75% structural and luminance match with Martian surface
+Analyzed Surface Patches,analyzed_patches,5175,tiles,Spatial Coverage,optimal,+5170,Total 128x128 GeoTIFF orthophoto tiles evaluated across regional scenes
+High-Fidelity Candidates,high_fidelity,2836,tiles,Fidelity Threshold,match,+54.8%,Patches exceeding 75% structural and luminance match with Martian surface
 Mean Surface Similarity,mean_match,54.18,%,Regional Baseline,match,+6.2%,Average terrain correlation across all evaluated New Mexico orthophoto tiles
 Luminance Texture Match,lum_texture,91.45,%,Surface Photometry,optimal,+8.5%,Mean albedo and illumination profile matched against Mars CTX/HiRISE basemaps
 Topographic Roughness RMS,roughness_rms,88.70,%,Geomorphology,match,+4.1%,Local standard deviation and slope variation benchmarked against Jezero terrain

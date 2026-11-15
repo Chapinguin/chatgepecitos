@@ -120,11 +120,11 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
           <div className="flex items-center gap-2">
             <BarChart2 className="w-4 h-4 text-purple-400" />
             <h3 className="text-sm font-bold text-slate-200">
-              Spatial Match Score Frequency (Sample Surface Pixels)
+              Spatial Match Score Frequency (Sample Surface Patches)
             </h3>
           </div>
           <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-            {isHistogramPending ? 'Pending Pipeline' : 'Pixel Bins'}
+            {isHistogramPending ? 'Pending Pipeline' : 'Patch Bins'}
           </span>
         </div>
 
@@ -135,10 +135,10 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
                 <Clock className="w-4 h-4 text-amber-400" />
               </div>
               <h4 className="text-xs font-bold text-white mb-1">
-                Awaiting Pixel Distribution
+                Awaiting Patch Distribution
               </h4>
               <p className="text-[11px] text-slate-400 max-w-xs">
-                Spatial pixel frequency histogram is queued for backend execution.
+                Spatial patch frequency histogram is queued for backend execution.
               </p>
             </div>
           )}
@@ -159,7 +159,7 @@ export const VariableCharts: React.FC<VariableChartsProps> = ({
               />
               <Bar
                 dataKey="count"
-                name="Pixel Frequency"
+                name="Patch Frequency"
                 fill={isMars ? '#ea580c' : '#3b82f6'}
                 radius={[4, 4, 0, 0]}
               />
