@@ -13,7 +13,7 @@ import {
   ChevronRight,
   ZoomIn,
   ZoomOut,
-  SplitSquareVertical
+  Maximize2
 } from 'lucide-react';
 
 interface VariablesTableProps {
@@ -33,26 +33,40 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSiteModal, setSelectedSiteModal] = useState<PlanetaryAnalogSite | null>(null);
-  const [activeModalView, setActiveModalView] = useState<'both' | 'split' | 'earth' | 'target'>('both');
+  const [activeModalView, setActiveModalView] = useState<'both' | 'earth' | 'target'>('both');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [splitPos, setSplitPos] = useState<number>(50);
+  const [fullscreenImage, setFullscreenImage] = useState<{
+    url?: string;
+    title: string;
+    subtitle: string;
+    badge: string;
+    body: 'earth' | 'mars' | 'moon';
+    fallbackLabel: string;
+    location: string;
+  } | null>(null);
+  const [fullscreenZoom, setFullscreenZoom] = useState<number>(1);
 
-  // Reset zoom & split slider when switching active site
+  // Reset zoom when switching active site
   useEffect(() => {
     setZoomLevel(1);
-    setSplitPos(50);
+    setFullscreenZoom(1);
   }, [selectedSiteModal]);
 
-  // Close modal on Escape key press
+  // Close fullscreen or modal on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setSelectedSiteModal(null);
+        if (fullscreenImage) {
+          setFullscreenImage(null);
+          setFullscreenZoom(1);
+        } else {
+          setSelectedSiteModal(null);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [fullscreenImage]);
 
   const categories = ['all', ...Array.from(new Set(variables.map((v) => v.category)))];
 
@@ -460,25 +474,15 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                 <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
                   <button
                     onClick={() => setActiveModalView('both')}
-                    className={`px-2 py-1 rounded-md transition cursor-pointer font-medium ${
+                    className={`px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
                       activeModalView === 'both' ? 'bg-cyan-600 text-white font-semibold' : 'text-slate-400 hover:text-white'
                     }`}
                   >
                     Side-by-Side
                   </button>
                   <button
-                    onClick={() => setActiveModalView('split')}
-                    className={`px-2 py-1 rounded-md transition cursor-pointer font-medium flex items-center gap-1 ${
-                      activeModalView === 'split' ? 'bg-cyan-600 text-white font-semibold' : 'text-slate-400 hover:text-white'
-                    }`}
-                    title="Interactive swipe slider comparison"
-                  >
-                    <SplitSquareVertical className="w-3.5 h-3.5" />
-                    <span>Swipe Split</span>
-                  </button>
-                  <button
                     onClick={() => setActiveModalView('earth')}
-                    className={`px-2 py-1 rounded-md transition cursor-pointer font-medium ${
+                    className={`px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
                       activeModalView === 'earth' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -486,7 +490,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                   </button>
                   <button
                     onClick={() => setActiveModalView('target')}
-                    className={`px-2 py-1 rounded-md transition cursor-pointer font-medium ${
+                    className={`px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
                       activeModalView === 'target'
                         ? targetBody === 'Mars'
                           ? 'bg-orange-600 text-white font-semibold'
@@ -531,42 +535,55 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
 
             {/* Modal Body */}
             <div className="overflow-y-auto p-4 sm:p-5 space-y-3.5">
-              {/* SWIPE SPLIT SLIDER VIEW */}
-              {activeModalView === 'split' && (
-                <div className="space-y-2">
-                  <div className="relative h-56 sm:h-64 bg-slate-950 rounded-xl overflow-hidden border border-slate-700 shadow-xl select-none group">
-                    {/* Background Layer: Target Body (Mars or Moon) */}
-                    <img
-                      src={getSiteImage(selectedSiteModal, 'target')}
-                      alt={selectedSiteModal.targetLocation}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{
-                        transform: `scale(${zoomLevel})`,
-                        transformOrigin: 'center center',
-                      }}
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        target.onerror = null;
-                        target.src = getSvgFallback(
-                          targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
-                          targetBody === 'Mars' ? 'mars' : 'moon',
-                          selectedSiteModal.targetLocation
-                        );
-                      }}
-                    />
+              {/* DUAL / SINGLE SATELLITE IMAGE CARDS */}
+              <div
+                className={`grid gap-3 ${
+                  activeModalView === 'both' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
+                }`}
+              >
+                {/* Earth Satellite Patch */}
+                {(activeModalView === 'both' || activeModalView === 'earth') && (
+                  <div className="bg-slate-950 rounded-xl border border-emerald-500/30 overflow-hidden flex flex-col shadow-md">
+                    <div className="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>Earth: {selectedSiteModal.earthLocation}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-slate-400">{selectedSiteModal.earthCountry}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFullscreenZoom(1);
+                            setFullscreenImage({
+                              url: getSiteImage(selectedSiteModal, 'earth'),
+                              title: `Earth: ${selectedSiteModal.earthLocation}`,
+                              subtitle: `${selectedSiteModal.earthCountry} • GLORTHO Terrestrial Sensor`,
+                              badge: 'Earth Surface',
+                              body: 'earth',
+                              fallbackLabel: 'EARTH CROP',
+                              location: selectedSiteModal.earthLocation,
+                            });
+                          }}
+                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-emerald-950 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-600/50 transition flex items-center gap-1 text-[10px] font-mono cursor-pointer"
+                          title="Open Fullscreen View"
+                        >
+                          <Maximize2 className="w-3 h-3 text-emerald-400" />
+                          <span className="hidden sm:inline">Fullscreen</span>
+                        </button>
+                      </div>
+                    </div>
 
-                    {/* Foreground Layer: Earth, clipped by splitPos */}
                     <div
-                      className="absolute inset-0 overflow-hidden"
-                      style={{ width: `${splitPos}%` }}
+                      className="relative h-44 sm:h-52 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                      onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
+                      title="Click to toggle 2x optical zoom"
                     >
                       <img
                         src={getSiteImage(selectedSiteModal, 'earth')}
                         alt={selectedSiteModal.earthLocation}
-                        className="absolute inset-0 w-full h-full object-cover max-w-none"
+                        className="w-full h-full object-cover transition-transform duration-300 ease-out"
                         style={{
-                          width: '100%',
-                          height: '100%',
                           transform: `scale(${zoomLevel})`,
                           transformOrigin: 'center center',
                         }}
@@ -576,181 +593,164 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                           target.src = getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation);
                         }}
                       />
-                    </div>
-
-                    {/* Draggable Divider Line & Handle */}
-                    <div
-                      className="absolute top-0 bottom-0 w-1 bg-cyan-400 pointer-events-none shadow-[0_0_12px_rgba(56,189,248,0.9)]"
-                      style={{ left: `calc(${splitPos}% - 2px)` }}
-                    >
-                      <div className="absolute top-1/2 -translate-y-1/2 -left-3.5 w-8 h-8 rounded-full bg-slate-950 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-xl">
-                        <ArrowRightLeft className="w-3.5 h-3.5" />
+                      <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md pointer-events-none">
+                        GLORTHO • 15 cm/px
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFullscreenZoom(1);
+                          setFullscreenImage({
+                            url: getSiteImage(selectedSiteModal, 'earth'),
+                            title: `Earth: ${selectedSiteModal.earthLocation}`,
+                            subtitle: `${selectedSiteModal.earthCountry} • GLORTHO Terrestrial Sensor`,
+                            badge: 'Earth Surface',
+                            body: 'earth',
+                            fallbackLabel: 'EARTH CROP',
+                            location: selectedSiteModal.earthLocation,
+                          });
+                        }}
+                        className="absolute top-2 right-2 px-2 py-1 rounded bg-black/75 hover:bg-emerald-950/90 text-slate-300 hover:text-emerald-200 border border-slate-700 hover:border-emerald-500/60 shadow-lg backdrop-blur-md transition flex items-center gap-1.5 text-[10px] font-mono cursor-pointer"
+                        title="View Fullscreen"
+                      >
+                        <Maximize2 className="w-3 h-3 text-emerald-400" />
+                        <span>Fullscreen</span>
+                      </button>
                     </div>
 
-                    {/* Transparent Range Input for Scrubbing */}
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={splitPos}
-                      onChange={(e) => setSplitPos(Number(e.target.value))}
-                      className="absolute inset-0 opacity-0 cursor-ew-resize w-full h-full z-10"
-                    />
-
-                    {/* Overlay Badges */}
-                    <div className="absolute top-3 left-3 text-[10px] font-mono px-2.5 py-1 rounded-md bg-black/80 text-emerald-300 border border-emerald-500/40 backdrop-blur pointer-events-none">
-                      Earth: {selectedSiteModal.earthLocation}
-                    </div>
-                    <div
-                      className={`absolute top-3 right-3 text-[10px] font-mono px-2.5 py-1 rounded-md bg-black/80 border backdrop-blur pointer-events-none ${
-                        targetBody === 'Mars'
-                          ? 'text-orange-300 border-orange-500/40'
-                          : 'text-cyan-300 border-cyan-500/40'
-                      }`}
-                    >
-                      {targetBody}: {selectedSiteModal.targetLocation}
-                    </div>
-
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-black/75 text-slate-300 border border-slate-700 pointer-events-none backdrop-blur">
-                      Drag left/right to compare analog surface textures
+                    {/* Earth Card Footer */}
+                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                      <span className="text-[11px] text-slate-400">Terrestrial Morphology Context</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40 font-semibold">
+                        Earth Surface
+                      </span>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* DUAL / SINGLE SATELLITE IMAGE CARDS */}
-              {activeModalView !== 'split' && (
-                <div
-                  className={`grid gap-3 ${
-                    activeModalView === 'both' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
-                  }`}
-                >
-                  {/* Earth Satellite Patch */}
-                  {(activeModalView === 'both' || activeModalView === 'earth') && (
-                    <div className="bg-slate-950 rounded-xl border border-emerald-500/30 overflow-hidden flex flex-col shadow-md">
-                      <div className="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
-                          <MapPin className="w-3.5 h-3.5" />
-                          <span>Earth: {selectedSiteModal.earthLocation}</span>
-                        </div>
-                        <span className="text-[10px] font-mono text-slate-400">{selectedSiteModal.earthCountry}</span>
-                      </div>
-
+                {/* Target Martian / Lunar Satellite Patch */}
+                {(activeModalView === 'both' || activeModalView === 'target') && (
+                  <div
+                    className={`bg-slate-950 rounded-xl overflow-hidden flex flex-col shadow-md border ${
+                      targetBody === 'Mars' ? 'border-orange-500/30' : 'border-cyan-500/30'
+                    }`}
+                  >
+                    <div className="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
                       <div
-                        className="relative h-44 sm:h-48 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
-                        onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
-                        title="Click to toggle 2x optical zoom"
+                        className={`flex items-center gap-1.5 font-bold ${
+                          targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'
+                        }`}
                       >
-                        <img
-                          src={getSiteImage(selectedSiteModal, 'earth')}
-                          alt={selectedSiteModal.earthLocation}
-                          className="w-full h-full object-cover transition-transform duration-300 ease-out"
-                          style={{
-                            transform: `scale(${zoomLevel})`,
-                            transformOrigin: 'center center',
-                          }}
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            target.onerror = null;
-                            target.src = getSvgFallback('EARTH CROP', 'earth', selectedSiteModal.earthLocation);
-                          }}
-                        />
-                        <div className="absolute bottom-2 left-2 text-[10px] font-mono bg-black/75 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 backdrop-blur-md pointer-events-none">
-                          GLORTHO • 15 cm/px
-                        </div>
-                        <div className="absolute top-2 right-2 text-[10px] font-mono bg-black/60 text-slate-300 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
-                          {zoomLevel > 1 ? 'Click to reset' : 'Click to zoom'}
-                        </div>
-                      </div>
-
-                      {/* Earth Card Footer */}
-                      <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-                        <span className="text-[11px] text-slate-400">Terrestrial Morphology Context</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40 font-semibold">
-                          Earth Surface
+                        <Layers className="w-3.5 h-3.5" />
+                        <span>
+                          {targetBody}: {selectedSiteModal.targetLocation}
                         </span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Target Martian / Lunar Satellite Patch */}
-                  {(activeModalView === 'both' || activeModalView === 'target') && (
-                    <div
-                      className={`bg-slate-950 rounded-xl overflow-hidden flex flex-col shadow-md border ${
-                        targetBody === 'Mars' ? 'border-orange-500/30' : 'border-cyan-500/30'
-                      }`}
-                    >
-                      <div className="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-                        <div
-                          className={`flex items-center gap-1.5 font-bold ${
-                            targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'
-                          }`}
-                        >
-                          <Layers className="w-3.5 h-3.5" />
-                          <span>
-                            {targetBody}: {selectedSiteModal.targetLocation}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2">
                         <span className="text-[10px] font-mono text-slate-400">
                           {targetBody === 'Mars' ? 'HiRISE Mosaic' : 'LRO NAC 150cm'}
                         </span>
-                      </div>
-
-                      <div
-                        className="relative h-44 sm:h-48 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
-                        onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
-                        title="Click to toggle 2x optical zoom"
-                      >
-                        <img
-                          src={getSiteImage(selectedSiteModal, 'target')}
-                          alt={selectedSiteModal.targetLocation}
-                          className="w-full h-full object-cover transition-transform duration-300 ease-out"
-                          style={{
-                            transform: `scale(${zoomLevel})`,
-                            transformOrigin: 'center center',
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFullscreenZoom(1);
+                            setFullscreenImage({
+                              url: getSiteImage(selectedSiteModal, 'target'),
+                              title: `${targetBody}: ${selectedSiteModal.targetLocation}`,
+                              subtitle: `${targetBody === 'Mars' ? 'HiRISE 25 cm/px' : 'LRO NAC 150 cm/px'} • Orbital Ground Truth`,
+                              badge: `${targetBody} Surface`,
+                              body: targetBody === 'Mars' ? 'mars' : 'moon',
+                              fallbackLabel: targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                              location: selectedSiteModal.targetLocation,
+                            });
                           }}
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            target.onerror = null;
-                            target.src = getSvgFallback(
-                              targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
-                              targetBody === 'Mars' ? 'mars' : 'moon',
-                              selectedSiteModal.targetLocation
-                            );
-                          }}
-                        />
-                        <div
-                          className={`absolute bottom-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none ${
+                          className={`px-2 py-0.5 rounded bg-slate-800 transition flex items-center gap-1 text-[10px] font-mono cursor-pointer border border-slate-700 ${
                             targetBody === 'Mars'
-                              ? 'bg-black/75 text-orange-300 border-orange-500/30'
-                              : 'bg-black/75 text-cyan-300 border-cyan-500/30'
+                              ? 'hover:bg-orange-950 text-slate-300 hover:text-orange-300 hover:border-orange-600/50'
+                              : 'hover:bg-cyan-950 text-slate-300 hover:text-cyan-300 hover:border-cyan-600/50'
                           }`}
+                          title="Open Fullscreen View"
                         >
-                          {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
-                        </div>
-                        <div className="absolute top-2 right-2 text-[10px] font-mono bg-black/60 text-slate-300 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
-                          {zoomLevel > 1 ? 'Click to reset' : 'Click to zoom'}
-                        </div>
-                      </div>
-
-                      {/* Target Card Footer */}
-                      <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-                        <span className="text-[11px] text-slate-400">Orbital Ground Truth</span>
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
-                            targetBody === 'Mars'
-                              ? 'bg-orange-950 text-orange-400 border-orange-800/40'
-                              : 'bg-cyan-950 text-cyan-400 border-cyan-800/40'
-                          }`}
-                        >
-                          {targetBody} Surface
-                        </span>
+                          <Maximize2 className={`w-3 h-3 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                          <span className="hidden sm:inline">Fullscreen</span>
+                        </button>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
+
+                    <div
+                      className="relative h-44 sm:h-52 bg-slate-950 flex items-center justify-center overflow-hidden group cursor-zoom-in"
+                      onClick={() => setZoomLevel((z) => (z === 1 ? 2 : 1))}
+                      title="Click to toggle 2x optical zoom"
+                    >
+                      <img
+                        src={getSiteImage(selectedSiteModal, 'target')}
+                        alt={selectedSiteModal.targetLocation}
+                        className="w-full h-full object-cover transition-transform duration-300 ease-out"
+                        style={{
+                          transform: `scale(${zoomLevel})`,
+                          transformOrigin: 'center center',
+                        }}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.onerror = null;
+                          target.src = getSvgFallback(
+                            targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                            targetBody === 'Mars' ? 'mars' : 'moon',
+                            selectedSiteModal.targetLocation
+                          );
+                        }}
+                      />
+                      <div
+                        className={`absolute bottom-2 left-2 text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-md pointer-events-none ${
+                          targetBody === 'Mars'
+                            ? 'bg-black/75 text-orange-300 border-orange-500/30'
+                            : 'bg-black/75 text-cyan-300 border-cyan-500/30'
+                        }`}
+                      >
+                        {targetBody === 'Mars' ? 'HiRISE • 25 cm/px' : 'LRO NAC • 150 cm/px'}
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFullscreenZoom(1);
+                          setFullscreenImage({
+                            url: getSiteImage(selectedSiteModal, 'target'),
+                            title: `${targetBody}: ${selectedSiteModal.targetLocation}`,
+                            subtitle: `${targetBody === 'Mars' ? 'HiRISE 25 cm/px' : 'LRO NAC 150 cm/px'} • Orbital Ground Truth`,
+                            badge: `${targetBody} Surface`,
+                            body: targetBody === 'Mars' ? 'mars' : 'moon',
+                            fallbackLabel: targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
+                            location: selectedSiteModal.targetLocation,
+                          });
+                        }}
+                        className={`absolute top-2 right-2 px-2 py-1 rounded bg-black/75 shadow-lg backdrop-blur-md transition flex items-center gap-1.5 text-[10px] font-mono cursor-pointer border ${
+                          targetBody === 'Mars'
+                            ? 'hover:bg-orange-950/90 text-slate-300 hover:text-orange-200 border-slate-700 hover:border-orange-500/60'
+                            : 'hover:bg-cyan-950/90 text-slate-300 hover:text-cyan-200 border-slate-700 hover:border-cyan-500/60'
+                        }`}
+                        title="View Fullscreen"
+                      >
+                        <Maximize2 className={`w-3 h-3 ${targetBody === 'Mars' ? 'text-orange-400' : 'text-cyan-400'}`} />
+                        <span>Fullscreen</span>
+                      </button>
+                    </div>
+
+                    {/* Target Card Footer */}
+                    <div className="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                      <span className="text-[11px] text-slate-400">Orbital Ground Truth</span>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
+                          targetBody === 'Mars'
+                            ? 'bg-orange-950 text-orange-400 border-orange-800/40'
+                            : 'bg-cyan-950 text-cyan-400 border-cyan-800/40'
+                        }`}
+                      >
+                        {targetBody} Surface
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Scientific Analog Characterization & Metrics Bar */}
               <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
@@ -801,6 +801,131 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
               >
                 Close Inspector
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* High-Resolution Fullscreen Lightbox Overlay */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-xl flex flex-col p-4 sm:p-6 animate-fadeIn select-none"
+          onClick={() => {
+            setFullscreenImage(null);
+            setFullscreenZoom(1);
+          }}
+        >
+          {/* Top Bar */}
+          <div
+            className="flex items-center justify-between gap-4 pb-3 sm:pb-4 border-b border-slate-800 shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-2 rounded-lg border ${
+                  fullscreenImage.body === 'earth'
+                    ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
+                    : fullscreenImage.body === 'mars'
+                    ? 'bg-orange-950/60 text-orange-400 border-orange-800/60'
+                    : 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60'
+                }`}
+              >
+                {fullscreenImage.body === 'earth' ? (
+                  <MapPin className="w-5 h-5" />
+                ) : (
+                  <Layers className="w-5 h-5" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                    {fullscreenImage.title}
+                  </h3>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                      fullscreenImage.body === 'earth'
+                        ? 'bg-emerald-950 text-emerald-300 border-emerald-700/60'
+                        : fullscreenImage.body === 'mars'
+                        ? 'bg-orange-950 text-orange-300 border-orange-700/60'
+                        : 'bg-cyan-950 text-cyan-300 border-cyan-700/60'
+                    }`}
+                  >
+                    {fullscreenImage.badge}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                  {fullscreenImage.subtitle}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Controls: Zoom & Close */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 font-mono text-xs">
+                <button
+                  onClick={() => setFullscreenZoom((z) => Math.max(1, Number((z - 0.5).toFixed(1))))}
+                  disabled={fullscreenZoom <= 1}
+                  className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Zoom Out (-)"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-bold text-cyan-400 px-2 min-w-[36px] text-center">
+                  {fullscreenZoom}x
+                </span>
+                <button
+                  onClick={() => setFullscreenZoom((z) => Math.min(3.5, Number((z + 0.5).toFixed(1))))}
+                  disabled={fullscreenZoom >= 3.5}
+                  className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Zoom In (+)"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  setFullscreenImage(null);
+                  setFullscreenZoom(1);
+                }}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 transition flex items-center gap-1.5 cursor-pointer shadow-lg"
+                title="Close Fullscreen (Esc)"
+              >
+                <X className="w-4 h-4" />
+                <span className="hidden sm:inline">Close Fullscreen</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Fullscreen Image Content Area */}
+          <div
+            className="flex-1 overflow-auto flex items-center justify-center p-2 sm:p-4 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={fullscreenImage.url || getSvgFallback(fullscreenImage.fallbackLabel, fullscreenImage.body, fullscreenImage.location)}
+              alt={fullscreenImage.title}
+              className="max-h-[82vh] max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 transition-transform duration-200 cursor-zoom-in"
+              style={{
+                transform: `scale(${fullscreenZoom})`,
+                transformOrigin: 'center center',
+              }}
+              onClick={() =>
+                setFullscreenZoom((z) => (z === 1 ? 2 : z === 2 ? 3 : 1))
+              }
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = getSvgFallback(
+                  fullscreenImage.fallbackLabel,
+                  fullscreenImage.body,
+                  fullscreenImage.location
+                );
+              }}
+            />
+
+            <div className="absolute bottom-4 left-6 text-[11px] font-mono bg-black/85 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 backdrop-blur-md pointer-events-none hidden sm:block">
+              Click image to cycle zoom levels (1x → 2x → 3x) • Drag or scroll to inspect
             </div>
           </div>
         </div>

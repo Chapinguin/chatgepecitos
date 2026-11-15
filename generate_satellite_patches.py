@@ -156,3 +156,4 @@ draw_craters(img_shackleton, 40, 8, 75, (235, 240, 250), (5, 6, 8), sun_dir=(-1,
 img_shackleton.save(out_dir / "l-02_target.png")
 
 print("Generated 12 photorealistic planetary analog satellite patches in:", out_dir)
+
