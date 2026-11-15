@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { VariableResult, PlanetaryAnalogSite, TargetBody } from '../types';
-import { Search, Download, MapPin, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Search, Download, MapPin, Sparkles, SlidersHorizontal, Image as ImageIcon } from 'lucide-react';
+import { PatchesDataGrid } from './PatchesDataGrid';
 
 interface VariablesTableProps {
   variables: VariableResult[];
@@ -15,7 +16,7 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
   targetBody,
   filename: _filename,
 }) => {
-  const [activeTab, setActiveTab] = useState<'sites' | 'variables'>('sites');
+  const [activeTab, setActiveTab] = useState<'sites' | 'variables' | 'patches'>('sites');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -113,45 +114,58 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Extracted Variables ({filteredVariables.length})</span>
             </button>
+            <button
+              onClick={() => setActiveTab('patches')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                activeTab === 'patches'
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>Satellite Patches & Visual Crops</span>
+            </button>
           </div>
         </div>
 
         {/* Filter and Download controls */}
-        <div className="flex items-center gap-2 w-full lg:w-auto">
-          <div className="relative flex-1 lg:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
-            <input
-              type="text"
-              placeholder={activeTab === 'sites' ? "Search Earth site, crater, country..." : "Search variable or mineral..."}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg focus:outline-none focus:border-cyan-500"
-            />
-          </div>
+        {activeTab !== 'patches' && (
+          <div className="flex items-center gap-2 w-full lg:w-auto">
+            <div className="relative flex-1 lg:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
+              <input
+                type="text"
+                placeholder={activeTab === 'sites' ? "Search Earth site, crater, country..." : "Search variable or mineral..."}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg focus:outline-none focus:border-cyan-500"
+              />
+            </div>
 
-          {activeTab === 'variables' && (
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-xs text-slate-300 rounded-lg py-1.5 px-2.5 focus:outline-none focus:border-cyan-500"
+            {activeTab === 'variables' && (
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-slate-950 border border-slate-800 text-xs text-slate-300 rounded-lg py-1.5 px-2.5 focus:outline-none focus:border-cyan-500"
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>
+                    {c === 'all' ? 'All Categories' : c}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <button
+              onClick={exportCSV}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer shrink-0"
+              title="Export filtered records to CSV"
             >
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c === 'all' ? 'All Categories' : c}
-                </option>
-              ))}
-            </select>
-          )}
-
-          <button
-            onClick={exportCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer shrink-0"
-            title="Export filtered records to CSV"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export CSV</span>
-          </button>
-        </div>
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* View 1: Analog Sites Table */}
@@ -264,6 +278,10 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
             </tbody>
           </table>
         </div>
+      )}
+      {/* View 3: Satellite Patches & Visual Crops (PNG DataGrid) */}
+      {activeTab === 'patches' && (
+        <PatchesDataGrid targetBody={targetBody} />
       )}
     </div>
   );
