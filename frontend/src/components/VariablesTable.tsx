@@ -6,11 +6,12 @@ import {
   MapPin,
   Sparkles,
   SlidersHorizontal,
-  Maximize2,
   X,
   UploadCloud,
   Layers,
-  ArrowRightLeft
+  ArrowRightLeft,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface VariablesTableProps {
@@ -65,6 +66,28 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
       s.keyAnalogFactor.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
+
+  const currentIndex = selectedSiteModal
+    ? filteredSites.findIndex((s) => s.id === selectedSiteModal.id)
+    : -1;
+
+  const handlePrevSite = () => {
+    if (filteredSites.length === 0) return;
+    if (currentIndex > 0) {
+      setSelectedSiteModal(filteredSites[currentIndex - 1]);
+    } else {
+      setSelectedSiteModal(filteredSites[filteredSites.length - 1]);
+    }
+  };
+
+  const handleNextSite = () => {
+    if (filteredSites.length === 0) return;
+    if (currentIndex >= 0 && currentIndex < filteredSites.length - 1) {
+      setSelectedSiteModal(filteredSites[currentIndex + 1]);
+    } else {
+      setSelectedSiteModal(filteredSites[0]);
+    }
+  };
 
   const handleSiteImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !uploadTargetSite) return;
@@ -216,183 +239,132 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
         className="hidden"
       />
 
-      {/* View 1: Analog Sites Table with Side-by-Side Earth & Target Satellite Crops */}
+      {/* View 1: Analog Sites Table with Highlighted Comparison Action */}
       {activeTab === 'sites' && (
         <div className="overflow-x-auto rounded-xl border border-slate-800/80">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950/80 text-slate-400 uppercase font-mono tracking-wider border-b border-slate-800 text-[10px]">
               <tr>
-                <th className="py-3 px-4">Earth Analog Location & Patch</th>
+                <th className="py-3 px-4">Earth Analog Location</th>
                 <th className="py-3 px-4">Country / Region</th>
-                <th className="py-3 px-4">Target {targetBody} Location & Patch</th>
+                <th className="py-3 px-4">Target {targetBody} Location</th>
                 <th className="py-3 px-4">Overall Match</th>
                 <th className="py-3 px-4">Mineral Match</th>
                 <th className="py-3 px-4">Terrain Match</th>
                 <th className="py-3 px-4">Key Analog Factor</th>
                 <th className="py-3 px-4">Fidelity Status</th>
-                <th className="py-3 px-4 text-center">Visual Pair</th>
+                <th className="py-3 px-4 text-center">Analog Comparison</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
-              {filteredSites.map((site) => {
-                const earthImg = getSiteImage(site, 'earth');
-                const targetImg = getSiteImage(site, 'target');
-
-                return (
-                  <tr key={site.id} className="hover:bg-slate-850/50 transition">
-                    {/* Column 1: Earth Location & Satellite Crop */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        {/* Earth Crop Thumbnail */}
-                        <div
-                          onClick={() => {
-                            setSelectedSiteModal(site);
-                            setActiveModalView('earth');
-                          }}
-                          className="relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border border-emerald-500/40 bg-slate-950 shrink-0 cursor-pointer group shadow-md hover:border-emerald-400 transition"
-                          title="Click to inspect Earth satellite patch (GLORTHO)"
-                        >
-                          <img
-                            src={earthImg}
-                            alt={site.earthLocation}
-                            className="w-full h-full object-cover group-hover:scale-110 transition duration-200"
-                            onError={(e) => {
-                              const target = e.currentTarget;
-                              target.onerror = null;
-                              target.src = getSvgFallback('EARTH CROP', 'earth', site.earthLocation);
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition" />
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
-                            <Maximize2 className="w-4 h-4 text-emerald-300" />
-                          </div>
-                        </div>
-
-                        {/* Location Details */}
-                        <div>
-                          <div className="font-semibold text-white flex items-center gap-1.5 leading-snug">
-                            <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                            <span>{site.earthLocation}</span>
-                          </div>
-                          <div className="text-[10px] font-mono text-emerald-400/90 flex items-center gap-1 mt-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            <span>Earth Satellite Patch</span>
-                          </div>
-                        </div>
+              {filteredSites.map((site) => (
+                <tr
+                  key={site.id}
+                  onClick={() => {
+                    setSelectedSiteModal(site);
+                    setActiveModalView('both');
+                  }}
+                  className="hover:bg-slate-800/40 transition cursor-pointer group"
+                >
+                  {/* Column 1: Earth Location */}
+                  <td className="py-3.5 px-4">
+                    <div className="font-semibold text-white flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 shadow-sm group-hover:border-emerald-400 transition">
+                        <MapPin className="w-4 h-4" />
                       </div>
-                    </td>
+                      <div>
+                        <span className="text-white text-sm font-bold block group-hover:text-cyan-300 transition leading-snug">
+                          {site.earthLocation}
+                        </span>
+                        <span className="text-[10px] font-mono text-emerald-400/90">Terrestrial Reference</span>
+                      </div>
+                    </div>
+                  </td>
 
-                    {/* Column 2: Country / Region */}
-                    <td className="py-3 px-4 text-slate-400 font-medium">{site.earthCountry}</td>
+                  {/* Column 2: Country / Region */}
+                  <td className="py-3.5 px-4 text-slate-300 font-medium">{site.earthCountry}</td>
 
-                    {/* Column 3: Target Mars / Moon Location & Satellite Crop */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        {/* Target Crop Thumbnail */}
-                        <div
-                          onClick={() => {
-                            setSelectedSiteModal(site);
-                            setActiveModalView('target');
-                          }}
-                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border bg-slate-950 shrink-0 cursor-pointer group shadow-md transition ${
-                            targetBody === 'Mars'
-                              ? 'border-orange-500/40 hover:border-orange-400'
-                              : 'border-cyan-500/40 hover:border-cyan-400'
+                  {/* Column 3: Target Mars / Moon Location */}
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border shadow-sm transition ${
+                          targetBody === 'Mars'
+                            ? 'bg-orange-950/80 border-orange-500/40 text-orange-400 group-hover:border-orange-400'
+                            : 'bg-cyan-950/80 border-cyan-500/40 text-cyan-400 group-hover:border-cyan-400'
+                        }`}
+                      >
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="font-mono font-bold text-amber-300 text-sm block leading-snug">
+                          {site.targetLocation}
+                        </span>
+                        <span
+                          className={`text-[10px] font-mono ${
+                            targetBody === 'Mars' ? 'text-orange-400/80' : 'text-cyan-400/80'
                           }`}
-                          title={`Click to inspect ${targetBody} surface patch`}
                         >
-                          <img
-                            src={targetImg}
-                            alt={site.targetLocation}
-                            className="w-full h-full object-cover group-hover:scale-110 transition duration-200"
-                            onError={(e) => {
-                              const target = e.currentTarget;
-                              target.onerror = null;
-                              target.src = getSvgFallback(
-                                targetBody === 'Mars' ? 'MARS CROP' : 'MOON CROP',
-                                targetBody === 'Mars' ? 'mars' : 'moon',
-                                site.targetLocation
-                              );
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition" />
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
-                            <Maximize2
-                              className={`w-4 h-4 ${targetBody === 'Mars' ? 'text-orange-300' : 'text-cyan-300'}`}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Target Location Details */}
-                        <div>
-                          <div className="font-mono font-medium text-amber-300 leading-snug">
-                            {site.targetLocation}
-                          </div>
-                          <div
-                            className={`text-[10px] font-mono flex items-center gap-1 mt-0.5 ${
-                              targetBody === 'Mars' ? 'text-orange-400/90' : 'text-cyan-400/90'
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                targetBody === 'Mars' ? 'bg-orange-400' : 'bg-cyan-400'
-                              }`}
-                            />
-                            <span>{targetBody === 'Mars' ? 'HiRISE Mosaic Crop' : 'LRO NAC Shade Crop'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Column 4: Overall Match */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 bg-slate-800 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full"
-                            style={{ width: `${site.overallMatchScore}%` }}
-                          />
-                        </div>
-                        <span className="font-mono font-bold text-white text-xs">
-                          {site.overallMatchScore}%
+                          {targetBody === 'Mars' ? 'HiRISE Mosaic Target' : 'LRO NAC Shaded Target'}
                         </span>
                       </div>
-                    </td>
+                    </div>
+                  </td>
 
-                    {/* Columns 5 & 6: Mineral & Terrain Match */}
-                    <td className="py-3 px-4 font-mono text-slate-300">{site.mineralMatch}%</td>
-                    <td className="py-3 px-4 font-mono text-slate-300">{site.terrainMatch}%</td>
-
-                    {/* Column 7: Key Analog Factor */}
-                    <td className="py-3 px-4 text-slate-400 text-[11px] max-w-xs truncate" title={site.keyAnalogFactor}>
-                      {site.keyAnalogFactor}
-                    </td>
-
-                    {/* Column 8: Fidelity Status */}
-                    <td className="py-3 px-4">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/70 text-emerald-400 border border-emerald-800/50">
-                        <Sparkles className="w-2.5 h-2.5" />
-                        {site.status}
+                  {/* Column 4: Overall Match */}
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full"
+                          style={{ width: `${site.overallMatchScore}%` }}
+                        />
+                      </div>
+                      <span className="font-mono font-bold text-white text-xs">
+                        {site.overallMatchScore}%
                       </span>
-                    </td>
+                    </div>
+                  </td>
 
-                    {/* Column 9: Visual Pair Compare Action */}
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => {
-                          setSelectedSiteModal(site);
-                          setActiveModalView('both');
-                        }}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold bg-slate-800 hover:bg-cyan-600 hover:text-white text-slate-300 border border-slate-700 hover:border-cyan-500 transition cursor-pointer shadow-sm"
-                        title="Compare Earth vs Target satellite crops side-by-side"
-                      >
-                        <ArrowRightLeft className="w-3 h-3" />
-                        <span>Compare</span>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  {/* Columns 5 & 6: Mineral & Terrain Match */}
+                  <td className="py-3.5 px-4 font-mono text-slate-300">{site.mineralMatch}%</td>
+                  <td className="py-3.5 px-4 font-mono text-slate-300">{site.terrainMatch}%</td>
+
+                  {/* Column 7: Key Analog Factor */}
+                  <td className="py-3.5 px-4 text-slate-400 text-[11px] max-w-xs truncate" title={site.keyAnalogFactor}>
+                    {site.keyAnalogFactor}
+                  </td>
+
+                  {/* Column 8: Fidelity Status */}
+                  <td className="py-3.5 px-4">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/70 text-emerald-400 border border-emerald-800/50">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      {site.status}
+                    </span>
+                  </td>
+
+                  {/* Column 9: HIGH-IMPACT ANALOG COMPARISON ACTION */}
+                  <td className="py-3.5 px-4 text-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedSiteModal(site);
+                        setActiveModalView('both');
+                      }}
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold shadow-lg transition-all duration-200 cursor-pointer group/btn ${
+                        targetBody === 'Mars'
+                          ? 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white hover:brightness-110 shadow-orange-950/50 border border-orange-400/50 hover:scale-[1.03]'
+                          : 'bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-500 text-white hover:brightness-110 shadow-cyan-950/50 border border-cyan-400/50 hover:scale-[1.03]'
+                      }`}
+                      title="Open Side-by-Side Satellite & Terrain Comparison"
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 group-hover/btn:rotate-180 transition-transform duration-300" />
+                      <span>Compare Analog</span>
+                      <Sparkles className="w-3 h-3 text-amber-200 animate-pulse" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -478,8 +450,31 @@ export const VariablesTable: React.FC<VariablesTableProps> = ({
                 </h3>
               </div>
 
-              {/* View Selector Tabs & Close in Modal */}
+              {/* View Selector Tabs, Site Switcher & Close in Modal */}
               <div className="flex items-center gap-2 self-end sm:self-auto">
+                {/* Prev / Next Candidate Site Quick Switcher */}
+                {filteredSites.length > 1 && (
+                  <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
+                    <button
+                      onClick={handlePrevSite}
+                      className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      title="Previous Candidate Site"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-[11px] font-mono text-slate-400 px-1 font-semibold">
+                      {currentIndex + 1}/{filteredSites.length}
+                    </span>
+                    <button
+                      onClick={handleNextSite}
+                      className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      title="Next Candidate Site"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
                   <button
                     onClick={() => setActiveModalView('both')}
