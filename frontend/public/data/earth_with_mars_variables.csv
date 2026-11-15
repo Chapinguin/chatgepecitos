@@ -7,5 +7,5 @@ Luminance Texture Match,lum_texture,91.45,%,Surface Photometry,optimal,+8.5%,Mea
 Topographic Roughness RMS,roughness_rms,88.70,%,Geomorphology,match,+4.1%,Local standard deviation and slope variation benchmarked against Jezero terrain
 Spatial Gradient Magnitude,grad_mag,84.12,%,Geomorphology,match,+3.2%,Sobel edge and directional boundary correlation with crater and ridge networks
 Multivariate Bhattacharyya Index,bhattacharyya,0.973,index,Statistical Distance,optimal,+0.12,Gaussian distribution overlap across multivariate feature vectors
-Regolith Porosity Void Ratio,regolith_porosity,0.485,void ratio,Geomechanics,match,-0.05,Soil particle packing proxy correlated with high-altitude volcanic tuff
-Thermal Inertia Proxy,thermal_inertia,245,J/(m²·K·s½),Thermodynamics,match,+18,Diurnal surface heating and cooling curve benchmarked against Gale telemetry
+Regolith Porosity Void Ratio,regolith_porosity,0.485,void ratio,Geomechanics,match,-0.05,"NASA ground-truth literature benchmark (Curiosity/Perseverance data) integrated for comparative geomechanical context against volcanic tuff"
+Thermal Inertia Proxy,thermal_inertia,245,J/(m²·K·s½),Thermodynamics,match,+18,"NASA Gale/Jezero REMS thermal telemetry benchmark (200-350 TIU) used as external reference for diurnal heating curves"
