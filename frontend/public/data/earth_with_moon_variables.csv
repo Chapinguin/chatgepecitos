@@ -7,5 +7,5 @@ Luminance Texture Match,lum_texture,74.50,%,Surface Photometry,optimal,+5.2%,Alb
 Topographic Roughness RMS,roughness_rms,71.20,%,Geomorphology,match,+2.8%,Local slope and boulder-scale roughness benchmarked against lunar maria
 Spatial Gradient Magnitude,grad_mag,68.90,%,Geomorphology,match,+1.9%,Crater rim and shadow boundary correlation using Sobel edge filters
 Multivariate Bhattacharyya Index,bhattacharyya,0.762,index,Statistical Distance,optimal,+0.08,Gaussian distribution overlap across multivariate feature vectors
-Regolith Porosity Void Ratio,regolith_porosity,0.520,void ratio,Geomechanics,match,-0.03,"NASA Apollo geotechnical literature benchmark (Carrier et al. 1991 core data) integrated for comparative soil compaction context"
-Albedo Contrast Index,albedo_contrast,0.125,ratio,Photometry,match,+0.02,"NASA LRO photometric baseline reference (geometric albedo 0.12) used as external ground-truth to calibrate diffuse scattering"
+Regolith Porosity Void Ratio,ext_ref:regolith_porosity,0.520,void ratio,Geomechanics,match,-0.03,"NASA Apollo geotechnical literature benchmark (Carrier et al. 1991 core data) integrated for comparative soil compaction context"
+Albedo Contrast Index,ext_ref:albedo_contrast,0.125,ratio,Photometry,match,+0.02,"NASA LRO photometric baseline reference (geometric albedo 0.12) used as external ground-truth to calibrate diffuse scattering"
