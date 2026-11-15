@@ -8,6 +8,17 @@ An interactive geospatial and multispectral intelligence platform designed to id
 
 ---
 
+## 👥 Team `chatgepecitos`
+
+Alphabetical roster:
+- **Daniela Tovar** — Facultad de Ciencias Físico Matemáticas, UAdeC
+- **Joshua Olivo** — Facultad de Ciencias Físico Matemáticas, UAdeC
+- **Roberto Chavez** — Facultad de Ciencias Físico Matemáticas, UAdeC
+- **Sebastian Chapa** — Facultad de Sistemas, UAdeC
+- **Ximena Quirino** — Facultad de Sistemas, UAdeC
+
+---
+
 ## ⚡ Key Architecture & Features
 
 - **Multi-Scale Spatial & Texture Matching Engine:** Computes high-dimensional feature distributions (surface luminance, multi-scale local standard deviation, Sobel spatial gradient magnitude, and directional structure coherence) over 5,175 GeoTIFF orthophoto tiles ($128\times128$ px) across New Mexico volcanic and sedimentary fields (Jemez Caldera, Blue Water, Manzanos).
