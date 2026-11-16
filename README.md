@@ -3,7 +3,8 @@
 > **Challenge:** *"Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars"*  
 > **Team:** **chatgepecitos** 🚀  
 > **NASA Space Apps Challenge**  
-> **Live Demo:** [https://chatgepecitos.vercel.app/](https://chatgepecitos.vercel.app/) ([QR Code](docs/qr_vercel.png))
+> **Live Demo:** [https://chatgepecitos.vercel.app/](https://chatgepecitos.vercel.app/) ([QR Code](docs/qr_vercel.png))  
+> **Project Report:** [NASA_Space_Apps_2026_Project_Report.pdf](docs/NASA_Space_Apps_2026_Project_Report.pdf)
 
 An interactive geospatial and multispectral intelligence platform designed to identify, cross-match, and visualize terrestrial analog field locations on Earth that mirror environmental, mineralogical, and geomechanical conditions of **Permanent Lunar Base locations** (e.g., Shackleton Crater, Marius Hills lava tubes) and **Martian exploration sites** (e.g., Jezero and Gale Craters).
 
